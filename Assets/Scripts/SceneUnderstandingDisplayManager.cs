@@ -417,7 +417,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 }
                 else
                 {
-                    soGO.AddComponent<BoxCollider>();
+                    foreach(Transform child in soGO.transform)
+                    {
+                        child.gameObject.AddComponent<BoxCollider>();
+                    }
                 }
             }
             catch (Exception e)

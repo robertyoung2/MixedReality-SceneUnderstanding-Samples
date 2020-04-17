@@ -18,6 +18,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         // Rotate about all axes.
         Free
     }
+    
+
 
     /// <summary>
     /// The Billboard class implements the behaviors needed to keep a GameObject oriented towards the user.

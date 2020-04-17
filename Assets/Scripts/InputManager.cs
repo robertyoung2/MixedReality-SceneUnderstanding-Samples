@@ -148,6 +148,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Tooltip("Enables the displaying of Help Text.")]
         public string Keyword_HelpTextOn = "help on";
 
+        [Tooltip("Component that handles Object Placement Logic")]
+        public ObjectPlacementManager objPlacementComponent;
+
         /// <summary>
         /// Component that recognizes hand gestures.
         /// </summary>
@@ -170,13 +173,19 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         {
             if (SUDataProvider == null)
             {
-                Logger.LogWarning("InputManger.Start: SceneUnderstandingDataProvider component is not set on the InputManager. Input will not work.");
+                Logger.LogWarning("InputManager.Start: SceneUnderstandingDataProvider component is not set on the InputManager. Input will not work.");
                 return;
             }
 
             if (SUDisplayManager == null)
             {
-                Logger.LogWarning("InputManger.Start: SceneUnderstandingDisplayManager component is not set on the InputManager. Input will not work.");
+                Logger.LogWarning("InputManager.Start: SceneUnderstandingDisplayManager component is not set on the InputManager. Input will not work.");
+                return;
+            }
+
+            if(objPlacementComponent == null)
+            {
+                Logger.LogWarning("InputManager.Start: ObjectPlacementManager component is not set on the InputManager. Input will not work");
                 return;
             }
 
@@ -496,6 +505,17 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 else
                 {
                     HelpText.Show();
+                }
+            }
+            else if (Input.GetKeyDown(KeyCode.C))
+            {
+                if(!objPlacementComponent.isPlacing)
+                {
+                    objPlacementComponent.StartCubePlacement();
+                }
+                else
+                {
+                    objPlacementComponent.FinishCubePlacement();
                 }
             }
         }
