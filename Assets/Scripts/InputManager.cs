@@ -511,11 +511,22 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             {
                 if(!objPlacementComponent.isPlacing)
                 {
-                    objPlacementComponent.StartCubePlacement();
+                    objPlacementComponent.StartObjectPlacement(KeyCode.C);
                 }
                 else
                 {
-                    objPlacementComponent.FinishCubePlacement();
+                    objPlacementComponent.FinishObjectPlacement();
+                }
+            }
+            else if (Input.GetKeyDown(KeyCode.V))
+            {
+                if(!objPlacementComponent.isPlacing)
+                {
+                    objPlacementComponent.StartObjectPlacement(KeyCode.V);
+                }
+                else
+                {
+                    objPlacementComponent.FinishObjectPlacement();
                 }
             }
         }

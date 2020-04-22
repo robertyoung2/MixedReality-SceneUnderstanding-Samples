@@ -139,6 +139,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Tooltip("Toggles the display of the world mesh.")]
         public bool RenderWorldMesh = false;
 
+        [Tooltip("Component that handles Object Placement Logic")]
+        public ObjectPlacementManager objPlacementComponent;
+
         private bool _displayInProgress = false;
         private float _timeElapsedSinceLastAutoRefresh = 0f;
         private bool _pcDisplayStarted = false;
@@ -251,15 +254,26 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     // This will destroy all game objects under root.
                     SUUtils.DestroyAllGameObjectsUnderParent(SceneRoot.transform);
 
+                    //This will destroy all virtually placed gameobjects that are not part of the original scene
+                    SUUtils.DestroyAllGameObjectsUnderParent(objPlacementComponent.goPlaceableObjectsContainer.transform);
+                    objPlacementComponent.isPlacing = false;
+                    objPlacementComponent.goCurrentObjectToPlace = null;
+                    
                     // Return to account for the destruction of the game objects at the end of the frame.
                     yield return null;
-        
+
                     // Retrieve the Scene to Unity world transform.
                     System.Numerics.Matrix4x4? sceneToUnityTransform = TransformUtils.GetSceneToUnityTransform(scene.OriginSpatialGraphNodeId, SUDataProvider.RunOnDevice);
                     if (sceneToUnityTransform != null)
                     {
                         // This will place the root object that represents the scene in the right place.
                         TransformUtils.SetUnityTransformFromMatrix4x4(sceneToUnityTransform.Value, SceneRoot.transform);
+
+                        // When running on PC, orient the main camera such that the floor is on the Unity world's X-Z plane.
+                        if (SUDataProvider.RunOnDevice == false)
+                        {
+                            SUUtils.OrientSceneRootForPC(SceneRoot, scene);
+                        }
 
                         // Retrieve all the scene objects, associated with this scene.
                         IEnumerable<SceneUnderstanding.SceneObject> sceneObjects = scene.SceneObjects;
@@ -279,10 +293,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     }
 
                     // When running on PC, orient the main camera such that the floor is on the Unity world's X-Z plane.
-                    if (SUDataProvider.RunOnDevice == false)
+                    /*if (SUDataProvider.RunOnDevice == false)
                     {
                         SUUtils.OrientSceneRootForPC(SceneRoot, scene);
-                    }
+                    }*/
                 }
             }
 
