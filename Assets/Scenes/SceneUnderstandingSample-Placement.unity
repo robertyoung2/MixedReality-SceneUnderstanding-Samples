@@ -123,12 +123,12 @@ GameObject:
   - component: {fileID: 197460146}
   - component: {fileID: 197460145}
   m_Layer: 0
-  m_Name: Line
+  m_Name: ObjectPlacementHelperLine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!120 &197460145
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -291,6 +291,7 @@ MonoBehaviour:
   RenderUnknownSceneObjects: 1
   RenderCompletelyInferredSceneObjects: 1
   RenderWorldMesh: 0
+  objPlacementComponent: {fileID: 927219514}
 --- !u!114 &468962783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -430,7 +431,7 @@ GameObject:
   - component: {fileID: 858376640}
   - component: {fileID: 858376639}
   - component: {fileID: 858376638}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: HelpText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -546,7 +547,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 858376637}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.84000015}
+  m_LocalPosition: {x: 0.055, y: 0, z: 0.84000015}
   m_LocalScale: {x: 0.005, y: 0.005, z: 0.005}
   m_Children:
   - {fileID: 1885369459}
@@ -584,11 +585,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SUUtils: {fileID: 468962783}
   SUDataProvider: {fileID: 468962784}
+  SUDisplayManager: {fileID: 468962782}
   mainCamera: {fileID: 1206392067}
   goLine: {fileID: 197460144}
-  isPlacing: 0
+  isPlacingObject: 0
+  isPlacingTexture: 0
   placeableObjectsMaterial: {fileID: 2100000, guid: 0746671642388094aa5fc149eb6c23be,
     type: 2}
+  goCurrentObjectToPlace: {fileID: 0}
+  goPlaceableObjectsContainer: {fileID: 0}
+  textureRug: {fileID: 2800000, guid: 596d7ceda9e0bdf408ff4fb9deaf2aa4, type: 3}
 --- !u!4 &927219515
 Transform:
   m_ObjectHideFlags: 0
@@ -615,7 +621,7 @@ GameObject:
   - component: {fileID: 1176165904}
   - component: {fileID: 1176165903}
   - component: {fileID: 1176165902}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: BackPlane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -806,7 +812,7 @@ GameObject:
   - component: {fileID: 1231587582}
   - component: {fileID: 1231587581}
   - component: {fileID: 1231587580}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: StatusText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1028,7 +1034,7 @@ GameObject:
   - component: {fileID: 1885369462}
   - component: {fileID: 1885369461}
   - component: {fileID: 1885369460}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: BackPlane
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -256,9 +256,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
                     //This will destroy all virtually placed gameobjects that are not part of the original scene
                     SUUtils.DestroyAllGameObjectsUnderParent(objPlacementComponent.goPlaceableObjectsContainer.transform);
-                    objPlacementComponent.isPlacing = false;
+                    objPlacementComponent.isPlacingObject = false;
                     objPlacementComponent.goCurrentObjectToPlace = null;
-                    
+
                     // Return to account for the destruction of the game objects at the end of the frame.
                     yield return null;
 

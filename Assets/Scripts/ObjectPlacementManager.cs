@@ -9,7 +9,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 /// <summary>
 /// When running on device (Hololens 2), this class will interact with gesture APis to assist in object placement logic integrated with a Scene Understanding
 /// deserialized scene 
-/// When running on PC, this class will use the main camera to simulate object placement
+/// When running on PC, this class will use the main camera to simulate object placement and texture changes on Scene Understanding objects
 /// </summary>
     public class ObjectPlacementManager : MonoBehaviour
     {
@@ -22,56 +22,146 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         /// <summary>
         /// Scene Understanding data provider component.
         /// </summary>
+        [Tooltip("Scene Understanding Data provider component.")]
         public SceneUnderstandingDataProvider SUDataProvider = null;
 
         /// <summary>
-        /// Reference to the Main Camera when not running on device
+        /// Scene Understanding display manager component.
         /// </summary>
-        [Tooltip("Reference to the Main Camera when not running on device")]
+        [Tooltip("Scene Understanding display manager component.")]
+        public SceneUnderstandingDisplayManager SUDisplayManager = null;
+
+        /// <summary>
+        /// Reference to the Unity Main Camera used when not running on device
+        /// </summary>
+        [Tooltip("Reference to the Unity Main Camera used when not running on device")]
         public Camera mainCamera = null;
 
         /// <summary>
-        /// Rendered line to guide placement
+        /// This Gameobject contains a LineRender that helps the user where they are pointing at when
+        /// placing objects or textures
         /// </summary>
+        [Tooltip("This Gameobject contains a LineRender that helps the user where they are pointing at when placing objects or textures")]
         public GameObject goLine = null;
-        private RaycastHit raycastHit;
-        private GameObject goCurrentHighlight = null;
-        private Color currentHighlightBaseColor;
-        bool isHighlightedObjGlowingUp;
-        float fTimeStamp;
-        float fTimeGlowing;
 
+        /// <summary>
+        /// Reference to the Raycast object used to know where the user is looking at
+        /// </summary>
+        [Tooltip("Reference to the Raycast object used to know where the user is looking at")]
+        private RaycastHit raycastHit;
+
+        /// <summary>
+        /// Reference to the gameobject that is being selected for something to be placed in it
+        /// or to change its texture
+        /// </summary>
+        [Tooltip("Reference to the gameobject that is being selected for something to be placed in it or to change its texture")]
+        private GameObject goCurrentSelected = null;
+
+        /// <summary>
+        /// This variable is used to store the original value for a selected object's texture
+        /// </summary>
+        [Tooltip("This variable is used to store the original value for a selected object's texture")]
+        private Texture currentSelectedBaseTexture = null;
+
+        /// <summary>
+        /// This variable is used to store the original value for a selected object's base color
+        /// </summary>
+        [Tooltip("This variable is used to store the original value for a selected object's texture")]
+        private Color currentSelectedBaseColor;
+
+        /// <summary>
+        /// When an object is selected it will glow brighter or dimmer, this flag is to keep track of that
+        /// </summary>
+        [Tooltip("When an object is selected it will glow brighter or dimmer, this flag is to keep track of that")]
+        private bool isSelectedObjGlowingUp;
+
+        /// <summary>
+        /// This is the amount of time a selected object will grow brighter before it starts going dimmer and viseversa
+        /// </summary>
+        [Tooltip("This is the amount of time a selected object will grow brighter before it starts going dimmer and viseversa")]
+        private float fTimeGlowingUpOrDown;
+        
+        /// <summary>
+        /// This is a timestamp, in-game time to know when was the moment a selected object started glowing brighter or dimmer.
+        /// This variable, together with fTimeGlowingUpOrDown, will help us keep a glowing effect for selected objects in a loop
+        /// using the standard unity update
+        /// </summary>
+        [Tooltip("This is a timestamp, in-game time to know when was the moment a selected object started glowing brighter or dimmer." + 
+                 "This variable, together with fTimeGlowingUpOrDown, will help us keep a glowing effect for selected objects" + 
+                 "in a loop using the standard unity update")]
+        private float fTimeStampLastGlowUpOrDown;
+
+        /// <summary>
+        /// Flag to know if user is currently placing an object
+        /// </summary>
+        [Tooltip("Flag to know if user is currently placing an object")]
         [HideInInspector]
-        public bool isPlacing;
+        public bool isPlacingObject;
+
+        /// <summary>
+        /// Flag to know if user is currently placing a texture
+        /// </summary>
+        [Tooltip("Flag to know if user is currently placing a texture")]
+        [HideInInspector]
+        public bool isPlacingTexture;
+
+        /// <summary>
+        /// This is the default material for objects in a Scene Understanding scene
+        /// </summary>
+        [Tooltip("This is the default material for objects in a Scene Understanding scene")]
         public Material placeableObjectsMaterial;
 
+        /// <summary>
+        /// This is a reference for the object that is currently being placed in the scene
+        /// </summary>
+        [Tooltip("This is a reference for the object that is currently being placed in the scene")]
         [HideInInspector]
         public GameObject goCurrentObjectToPlace = null;
-        private PrimitiveType goCurrentObjectToPlaceType;
-        private Vector3 hoverPostion;
-        private Vector3 highlightedObjFacingTowards;
 
+        /// <summary>
+        /// This is a reference for the type of object that is currently being placed in the scene
+        /// </summary>
+        [Tooltip("This is a reference for the type of object that is currently being placed in the scene")]
+        private PrimitiveType goCurrentObjectToPlaceType;
+
+        /// <summary>
+        /// This is a reference to the position of an object in the process of being placed
+        /// </summary>
+        [Tooltip("This is a reference to the position of an object in the process of being placed")]
+        private Vector3 v3CurrentObjToPlaceHoverPosition;
+
+        /// <summary>
+        /// This is a direction, simulates a selected object's (wall, floor, platform) normal vector
+        /// </summary>
+        [Tooltip("This is a direction, simulates a selected object's (wall, floor, platform) normal vector")]
+        private Vector3 selectedObjFacingTowards;
+
+        /// <summary>
+        /// This is an empty GameObject to contain all placed objects that are not part of the orignal scene,
+        /// use this to not polute the hierarchy in the unity inspector
+        /// </summary>
+        [Tooltip("This is an empty GameObject to contain all placed objects that are not part of the orignal scene, use this to not polute the hierarchy in the unity inspector")]
         [HideInInspector]
         public GameObject goPlaceableObjectsContainer;
 
         /// <summary>
-        /// Initialization.
+        /// This is a reference to the custom texture that can be placed on scene objects
         /// </summary>
+        [Tooltip("This is a reference to the custom texture that can be placed on scene objects")]
+        [HideInInspector]
+        public Texture textureRug;
+
         void Start()
         {
-            SUDataProvider = SUDataProvider == null ? gameObject.GetComponent<SceneUnderstandingDataProvider>() : SUDataProvider;
-            SUUtils = SUUtils == null ? gameObject.GetComponent<SceneUnderstandingUtils>() : SUUtils;
             mainCamera = mainCamera == null ? Camera.main : mainCamera;
-            isPlacing = false;
-            fTimeGlowing = 0.5f;
-
+            isPlacingObject = false;
+            isPlacingTexture = false;
+            fTimeGlowingUpOrDown = 0.5f;
             goPlaceableObjectsContainer = SUUtils.CreateGameObject("PlaceableObjectContainer", null);
         }
 
         void Update()
         {
-            
-
             if(SUDataProvider.RunOnDevice)
             {
                 Logger.LogWarning("Object Placement not implemented when running on device");
@@ -79,58 +169,82 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
             else
             {
-                if (isPlacing)
+                if (isPlacingObject || isPlacingTexture)
                 {
-                    if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.TransformDirection(Vector3.forward), out raycastHit, Mathf.Infinity))
-                    {
-                        Debug.DrawRay(mainCamera.transform.position, mainCamera.transform.TransformDirection(Vector3.forward) * raycastHit.distance, Color.yellow);
-                        goLine.SetActive(true);
-                        DrawLine(mainCamera.transform.position, raycastHit.point);
-
-                        if (goCurrentHighlight != raycastHit.transform.gameObject)
-                        {
-                            //This means a different gameobject is being highlighted
-
-                            //Reset color of the old highlighted object, if there's any
-                            if (goCurrentHighlight != null)
-                            {
-                                goCurrentHighlight.GetComponent<MeshRenderer>().material.color = currentHighlightBaseColor;
-                            }
-
-                            //Set the new object as the highlighted object
-                            currentHighlightBaseColor = raycastHit.transform.GetComponent<MeshRenderer>().material.color;
-                            goCurrentHighlight = raycastHit.transform.gameObject;
-                            fTimeStamp = Time.time;
-                            isHighlightedObjGlowingUp = true;
-
-                            highlightedObjFacingTowards = -goCurrentHighlight.transform.forward.normalized;
-                        }
-
-                        //figure out whether you are facing the object from the front or from the back
-                        hoverPostion = Vector3.Dot(mainCamera.transform.TransformDirection(Vector3.forward), highlightedObjFacingTowards) < 0 ? raycastHit.point + (highlightedObjFacingTowards * 0.2f) : raycastHit.point - (highlightedObjFacingTowards * 0.2f);
-
-                    }
-                    else
-                    {
-                        Debug.DrawRay(mainCamera.transform.position, mainCamera.transform.TransformDirection(Vector3.forward) * 1000, Color.white);
-                        goLine.SetActive(false);
-                        //if you are not hitting anything no object is being highlighted at the moment
-                        goCurrentHighlight = null;
-
-                        hoverPostion = mainCamera.transform.position + (mainCamera.transform.forward * 2.0f);
-                    }
-                }
-                else if (goCurrentHighlight != null || goCurrentObjectToPlace != null)
+                    CastRaycastAndCheckForHit();
+                } 
+                else if (goCurrentSelected != null || goCurrentObjectToPlace != null)
                 {
-                    goCurrentHighlight.GetComponent<MeshRenderer>().material.color = currentHighlightBaseColor;
-                    goCurrentHighlight = null;
+                    goCurrentSelected.GetComponent<MeshRenderer>().material.color = currentSelectedBaseColor;
+                    goCurrentSelected = null;
                     goLine.SetActive(false);
                     goCurrentObjectToPlace = null;
                 }
             }
 
             CheckforHighlight();
-            CheckforPlaceableObjectPosition(hoverPostion);
+            CheckforPlaceableObjectPosition();
+            CheckForTextureOnHighlightedObject();
+        }
+
+
+        void CastRaycastAndCheckForHit()
+        {
+            if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.TransformDirection(Vector3.forward), out raycastHit, Mathf.Infinity))
+            {
+                goLine.SetActive(true);
+                DrawLine(mainCamera.transform.position, raycastHit.point);
+
+                //This means a different gameobject is being highlighted
+                if (goCurrentSelected != raycastHit.transform.gameObject)
+                {
+                    //Reset color of the old highlighted object, if there's any
+                    if (goCurrentSelected != null && SUDisplayManager.SceneObjectVisualizationMode != VisualizationMode.Wireframe)
+                    {
+                        goCurrentSelected.GetComponent<MeshRenderer>().material.color = currentSelectedBaseColor;
+                        goCurrentSelected.GetComponent<MeshRenderer>().material.mainTexture = currentSelectedBaseTexture;
+                    }
+
+                    //Set the new object as the highlighted object
+                    if(SUDisplayManager.SceneObjectVisualizationMode != VisualizationMode.Wireframe)
+                    {
+                        currentSelectedBaseColor = raycastHit.transform.GetComponent<MeshRenderer>().material.color;
+                        currentSelectedBaseTexture = raycastHit.transform.GetComponent<MeshRenderer>().material.mainTexture;
+                    }
+                    
+                    //Set the new Object that you are hitting with raycast as new highlighted object
+                    goCurrentSelected = raycastHit.transform.gameObject;
+                    fTimeStampLastGlowUpOrDown = Time.time;
+                    isSelectedObjGlowingUp = true;
+
+                    selectedObjFacingTowards = -goCurrentSelected.transform.forward.normalized;
+                }
+
+                if(isPlacingObject)
+                {
+                    //figure out whether you are facing the object from the front or from the back
+                    v3CurrentObjToPlaceHoverPosition = Vector3.Dot(mainCamera.transform.TransformDirection(Vector3.forward), selectedObjFacingTowards) < 0 ? raycastHit.point + (selectedObjFacingTowards * 0.2f) : raycastHit.point - (selectedObjFacingTowards * 0.2f);
+                }
+            }
+            else
+            {
+                goLine.SetActive(false);
+                //if you are not hitting anything no object is being highlighted at the moment
+                goCurrentSelected = null;
+
+                v3CurrentObjToPlaceHoverPosition = mainCamera.transform.position + (mainCamera.transform.forward * 2.0f);
+            }
+        }
+
+        void CheckForTextureOnHighlightedObject()
+        {
+            if(goCurrentSelected != null && isPlacingTexture)
+            {
+                if(goCurrentSelected.GetComponent<MeshRenderer>().material.mainTexture == currentSelectedBaseTexture)
+                {
+                    goCurrentSelected.GetComponent<MeshRenderer>().material.mainTexture = textureRug;
+                }
+            }
         }
 
         void DrawLine(Vector3 vc3Start, Vector3 vc3End)
@@ -145,21 +259,21 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         void CheckforHighlight()
         {
-            if (goCurrentHighlight != null)
+            if (goCurrentSelected != null && SUDisplayManager.SceneObjectVisualizationMode != VisualizationMode.Wireframe)
             {
-                if (isHighlightedObjGlowingUp)
+                if (isSelectedObjGlowingUp)
                 {
-                    GlowUp(goCurrentHighlight);
+                    GlowUp(goCurrentSelected);
                 }
                 else
                 {
-                    GlowDown(goCurrentHighlight);
+                    GlowDown(goCurrentSelected);
                 }
 
-                if (Time.time > fTimeStamp + fTimeGlowing)
+                if (Time.time > fTimeStampLastGlowUpOrDown + fTimeGlowingUpOrDown)
                 {
-                    isHighlightedObjGlowingUp = !isHighlightedObjGlowingUp;
-                    fTimeStamp = Time.time;
+                    isSelectedObjGlowingUp = !isSelectedObjGlowingUp;
+                    fTimeStampLastGlowUpOrDown = Time.time;
                 }
             }
         }
@@ -170,9 +284,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             float missingValueToMaxRed = 1.0f - currentColor.r;
             float missingValueToMaxGreen = 1.0f - currentColor.g;
             float missingValueToMaxBlue = 1.0f - currentColor.b;
-            float IncreaseRed = missingValueToMaxRed * (Time.deltaTime / fTimeGlowing);
-            float IncreaseBlue = missingValueToMaxGreen * (Time.deltaTime / fTimeGlowing);
-            float IncreaseGreen = missingValueToMaxBlue * (Time.deltaTime / fTimeGlowing);
+            float IncreaseRed = missingValueToMaxRed * (Time.deltaTime / fTimeGlowingUpOrDown);
+            float IncreaseBlue = missingValueToMaxGreen * (Time.deltaTime / fTimeGlowingUpOrDown);
+            float IncreaseGreen = missingValueToMaxBlue * (Time.deltaTime / fTimeGlowingUpOrDown);
             currentColor.r += IncreaseRed;
             currentColor.g += IncreaseBlue;
             currentColor.b += IncreaseGreen;
@@ -185,28 +299,28 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             float missingValueToMaxRed = 1.0f - currentColor.r;
             float missingValueToMaxGreen = 1.0f - currentColor.g;
             float missingValueToMaxBlue = 1.0f - currentColor.b;
-            float IncreaseRed = missingValueToMaxRed * (Time.deltaTime / fTimeGlowing);
-            float IncreaseBlue = missingValueToMaxGreen * (Time.deltaTime / fTimeGlowing);
-            float IncreaseGreen = missingValueToMaxBlue * (Time.deltaTime / fTimeGlowing);
+            float IncreaseRed = missingValueToMaxRed * (Time.deltaTime / fTimeGlowingUpOrDown);
+            float IncreaseBlue = missingValueToMaxGreen * (Time.deltaTime / fTimeGlowingUpOrDown);
+            float IncreaseGreen = missingValueToMaxBlue * (Time.deltaTime / fTimeGlowingUpOrDown);
             currentColor.r -= IncreaseRed;
             currentColor.g -= IncreaseBlue;
             currentColor.b -= IncreaseGreen;
             target.GetComponent<MeshRenderer>().material.color = currentColor;
         }
 
-        void CheckforPlaceableObjectPosition(Vector3 pos)
+        void CheckforPlaceableObjectPosition()
         {
-            if (goCurrentObjectToPlace != null && isPlacing)
+            if (goCurrentObjectToPlace != null && isPlacingObject)
             {
-                goCurrentObjectToPlace.transform.position = pos;
+                goCurrentObjectToPlace.transform.position = v3CurrentObjToPlaceHoverPosition;
             }
         }
 
         public void StartObjectPlacement(KeyCode key)
         {   
-            if(goCurrentObjectToPlace == null && !isPlacing)
+            if(goCurrentObjectToPlace == null && !isPlacingObject)
             {
-                isPlacing = true;
+                isPlacingObject = true;
                 switch(key)
                 {
                     case KeyCode.C:
@@ -231,7 +345,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         public void FinishObjectPlacement()
         {
-            if (goCurrentObjectToPlace != null && isPlacing)
+            if (goCurrentObjectToPlace != null && isPlacingObject)
             {
                 goCurrentObjectToPlace.AddComponent<Rigidbody>();
                 switch(goCurrentObjectToPlaceType)
@@ -247,7 +361,23 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     break;
                 }
                 goCurrentObjectToPlace = null;
-                isPlacing = false;
+                isPlacingObject = false;
+            }
+        }
+
+        public void StartTexturePlacement()
+        {
+            if(!isPlacingTexture)
+            {
+                isPlacingTexture = true;
+            }
+        }
+
+        public void FinishTexturePlacement()
+        {
+            if(isPlacingTexture)
+            {
+                isPlacingTexture = false;
             }
         }
 

@@ -509,7 +509,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
             else if (Input.GetKeyDown(KeyCode.C))
             {
-                if(!objPlacementComponent.isPlacing)
+                if(!objPlacementComponent.isPlacingObject && !objPlacementComponent.isPlacingTexture)
                 {
                     objPlacementComponent.StartObjectPlacement(KeyCode.C);
                 }
@@ -520,13 +520,24 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
             else if (Input.GetKeyDown(KeyCode.V))
             {
-                if(!objPlacementComponent.isPlacing)
+                if(!objPlacementComponent.isPlacingObject && !objPlacementComponent.isPlacingTexture)
                 {
                     objPlacementComponent.StartObjectPlacement(KeyCode.V);
                 }
                 else
                 {
                     objPlacementComponent.FinishObjectPlacement();
+                }
+            }
+            else if (Input.GetKeyDown(KeyCode.B))
+            {
+                if(!objPlacementComponent.isPlacingObject && !objPlacementComponent.isPlacingTexture)
+                {
+                    objPlacementComponent.StartTexturePlacement();
+                }
+                else
+                {
+                    objPlacementComponent.FinishTexturePlacement();
                 }
             }
         }
