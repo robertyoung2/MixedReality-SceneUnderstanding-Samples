@@ -162,26 +162,18 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         void Update()
         {
-            if(SUDataProvider.RunOnDevice)
+            if (isPlacingObject || isPlacingTexture)
             {
-                Logger.LogWarning("Object Placement not implemented when running on device");
-                return;
-            }
-            else
+                CastRaycastAndCheckForHit();
+            } 
+            else if (goCurrentSelected != null || goCurrentObjectToPlace != null)
             {
-                if (isPlacingObject || isPlacingTexture)
-                {
-                    CastRaycastAndCheckForHit();
-                } 
-                else if (goCurrentSelected != null || goCurrentObjectToPlace != null)
-                {
-                    goCurrentSelected.GetComponent<MeshRenderer>().material.color = currentSelectedBaseColor;
-                    goCurrentSelected = null;
-                    goLine.SetActive(false);
-                    goCurrentObjectToPlace = null;
-                }
+                goCurrentSelected.GetComponent<MeshRenderer>().material.color = currentSelectedBaseColor;
+                goCurrentSelected = null;
+                goLine.SetActive(false);
+                goCurrentObjectToPlace = null;
             }
-
+            
             CheckforHighlight();
             CheckforPlaceableObjectPosition();
             CheckForTextureOnHighlightedObject();
