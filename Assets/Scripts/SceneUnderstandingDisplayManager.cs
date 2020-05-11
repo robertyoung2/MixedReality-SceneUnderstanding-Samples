@@ -6,6 +6,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Different rendering modes available for scene objects.
@@ -165,33 +166,43 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         /// <summary>
         /// Controls auto refresh (if enabled) on the device path. On the PC path, ensures display happens once.
         /// </summary>
-        private void Update()
+        private async void Update()
         {
-            if (SUDataProvider.RunOnDevice)
+            //AsyncUtils.RunSafeVoid(SceneUnderstandingDisplayManager,StartDisplay,)
+            bool displayTask;
+            try
             {
-                // Autorefresh only applies when running on the device.
-                if (AutoRefresh)
+                //Task<bool> task;
+                if (SUDataProvider.RunOnDevice)
                 {
-                    _timeElapsedSinceLastAutoRefresh += Time.deltaTime;
-                    if (_timeElapsedSinceLastAutoRefresh >= AutoRefreshIntervalInSeconds)
+                    // Autorefresh only applies when running on the device.
+                    if (AutoRefresh)
                     {
-                        // Only trigger the display of the new scene, if the scene has changed.
-                        if (SUDataProvider.GetLatestSceneGuid() != _lastDisplayedSceneGuid)
+                        _timeElapsedSinceLastAutoRefresh += Time.deltaTime;
+                        if (_timeElapsedSinceLastAutoRefresh >= AutoRefreshIntervalInSeconds)
                         {
-                            StartDisplay();
+                            // Only trigger the display of the new scene, if the scene has changed.
+                            if (SUDataProvider.GetLatestSceneGuid() != _lastDisplayedSceneGuid)
+                            {
+                                displayTask = await StartDisplay();
+                            }
+                            _timeElapsedSinceLastAutoRefresh -= AutoRefreshIntervalInSeconds;
                         }
-                        _timeElapsedSinceLastAutoRefresh -= AutoRefreshIntervalInSeconds;
+                    }
+                }
+                else
+                {
+                    // For the PC path, just display the data once.
+                    if (_pcDisplayStarted == false)
+                    {
+                        displayTask = await StartDisplay();
+                        _pcDisplayStarted = true;
                     }
                 }
             }
-            else
+            catch(Exception ex)
             {
-                // For the PC path, just display the data once.
-                if (_pcDisplayStarted == false)
-                {
-                    StartDisplay();
-                    _pcDisplayStarted = true;
-                }
+                Logger.LogException(ex);
             }
         }
 
@@ -215,16 +226,21 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         /// <summary>
         /// Triggers the displaying of the latest set of scene objects.
         /// </summary>
-        public void StartDisplay()
+        public Task<bool> StartDisplay()
         {
+            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
             if (_displayInProgress)
             {
                 Logger.Log("SceneUnderstandingDisplayManager.StartDisplay: Display is already in progress.");
-                return;
+                tcs.SetResult(true);
+                return tcs.Task; 
             }
 
             _displayInProgress = true;
-            StartCoroutine(DisplayData());
+            StartCoroutine(DisplayData().WithExceptionHandling(tcs));
+            //StartCoroutine(AsyncUtils.WithExceptionHandling(DisplayData(),tcs));
+            //StartCoroutine(DisplayData()); 
+            return tcs.Task; 
        }
 
         /// <summary>

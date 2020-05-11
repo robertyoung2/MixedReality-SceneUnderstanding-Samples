@@ -746,7 +746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4606f19126055cd48a66e66be73fba0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RunOnDevice: 1
+  RunOnDevice: 0
   SUSerializedScenePath: {fileID: 4900000, guid: 82ce9e90cb0010645b80557a1d4a4263,
     type: 3}
   BoundingSphereRadiusInMeters: 10
