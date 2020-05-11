@@ -192,8 +192,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         {
             if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.TransformDirection(Vector3.forward), out raycastHit, Mathf.Infinity))
             {
-                goLine.SetActive(true);
-                DrawLine(mainCamera.transform.position, raycastHit.point);
+                if(!SUDataProvider.RunOnDevice)
+                {
+                    DrawLine(mainCamera.transform.position, raycastHit.point);
+                }
 
                 //This means a different gameobject is being highlighted
                 if (goCurrentSelected != raycastHit.transform.gameObject)
@@ -211,7 +213,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                         currentSelectedBaseColor = raycastHit.transform.GetComponent<MeshRenderer>().material.color;
                         currentSelectedBaseTexture = raycastHit.transform.GetComponent<MeshRenderer>().material.mainTexture;
                     }
-                    
+
                     //Set the new Object that you are hitting with raycast as new highlighted object
                     goCurrentSelected = raycastHit.transform.gameObject;
                     fTimeStampLastGlowUpOrDown = Time.time;
@@ -228,10 +230,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
             else
             {
-                goLine.SetActive(false);
                 //if you are not hitting anything no object is being highlighted at the moment
+                goLine.SetActive(false);
                 goCurrentSelected = null;
-
                 v3CurrentObjToPlaceHoverPosition = mainCamera.transform.position + (mainCamera.transform.forward * 2.0f);
             }
         }
@@ -249,6 +250,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         void DrawLine(Vector3 vc3Start, Vector3 vc3End)
         {
+            goLine.SetActive(true);
             LineRenderer line = goLine.GetComponent<LineRenderer>();
             line.startWidth = 0.15f;
             line.endWidth = 0.15f;

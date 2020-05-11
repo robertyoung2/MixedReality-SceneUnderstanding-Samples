@@ -151,6 +151,15 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Tooltip("Component that handles Object Placement Logic")]
         public ObjectPlacementManager objPlacementComponent;
 
+        [Tooltip("Enables the placement of a cube hologram in unity scenes that support it.")]
+        public string Keyword_PlaceCube = "place cube";
+
+        [Tooltip("Enables the displaying of Help Text.")]
+        public string Keyword_PlaceSphere = "place sphere";
+
+        [Tooltip("Enables the displaying of Help Text.")]
+        public string Keyword_PlaceTexture = "place texture";
+
         /// <summary>
         /// Component that recognizes hand gestures.
         /// </summary>
@@ -244,7 +253,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 Keyword_StatusTextOff,
                 Keyword_StatusTextOn,
                 Keyword_HelpTextOff,
-                Keyword_HelpTextOn
+                Keyword_HelpTextOn,
+                Keyword_PlaceCube,
+                Keyword_PlaceSphere,
+                Keyword_PlaceTexture
             };
 
             // Create, configure and start the keyword recognizer.
@@ -438,6 +450,39 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             {
                 HelpText.Show();
             }
+            else if (arg.Contains(Keyword_PlaceCube) && SUDisplayManager.SceneSupportsObjectPlacement)
+            {
+                if(!objPlacementComponent.isPlacingObject && !objPlacementComponent.isPlacingTexture)
+                {
+                    objPlacementComponent.StartObjectPlacement(KeyCode.C);
+                }
+                else
+                {
+                    objPlacementComponent.FinishObjectPlacement();
+                }
+            }
+            else if (arg.Contains(Keyword_PlaceSphere) && SUDisplayManager.SceneSupportsObjectPlacement)
+            {
+                if(!objPlacementComponent.isPlacingObject && !objPlacementComponent.isPlacingTexture)
+                {
+                    objPlacementComponent.StartObjectPlacement(KeyCode.V);
+                }
+                else
+                {
+                    objPlacementComponent.FinishObjectPlacement();
+                }
+            }
+            else if (arg.Contains(Keyword_PlaceTexture) && SUDisplayManager.SceneSupportsObjectPlacement)
+            {
+                if(!objPlacementComponent.isPlacingObject && !objPlacementComponent.isPlacingTexture)
+                {
+                    objPlacementComponent.StartTexturePlacement();
+                }
+                else
+                {
+                    objPlacementComponent.FinishTexturePlacement();
+                }
+            }
         }
 
         /// <summary>
@@ -507,7 +552,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     HelpText.Show();
                 }
             }
-            else if (Input.GetKeyDown(KeyCode.C))
+            else if (Input.GetKeyDown(KeyCode.C) && SUDisplayManager.SceneSupportsObjectPlacement)
             {
                 if(!objPlacementComponent.isPlacingObject && !objPlacementComponent.isPlacingTexture)
                 {
@@ -518,7 +563,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     objPlacementComponent.FinishObjectPlacement();
                 }
             }
-            else if (Input.GetKeyDown(KeyCode.V))
+            else if (Input.GetKeyDown(KeyCode.V) && SUDisplayManager.SceneSupportsObjectPlacement)
             {
                 if(!objPlacementComponent.isPlacingObject && !objPlacementComponent.isPlacingTexture)
                 {
@@ -529,7 +574,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     objPlacementComponent.FinishObjectPlacement();
                 }
             }
-            else if (Input.GetKeyDown(KeyCode.B))
+            else if (Input.GetKeyDown(KeyCode.B) && SUDisplayManager.SceneSupportsObjectPlacement)
             {
                 if(!objPlacementComponent.isPlacingObject && !objPlacementComponent.isPlacingTexture)
                 {
@@ -617,6 +662,20 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 Keyword_HelpTextOn,
                 Keyword_HelpTextOff
                 );
+
+                if(SUDisplayManager.SceneSupportsObjectPlacement)
+                {
+                    helpText += string.Format(
+                    @"
+        '{1}' - place a cube hologram in the scene, press 'C' again to confirm location
+        '{2}' - place a sphere hologram in the scene, press 'V' again to confirm location
+        '{3}' - change the texture of a scene object, press 'B' again to confirm change
+            ",
+                    Keyword_PlaceCube,
+                    Keyword_PlaceSphere,
+                    Keyword_PlaceTexture
+                    );
+                }
             }
             else
             {
@@ -647,7 +706,20 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         'H' - enable/disable this help menu
             ";
+
+            if(SUDisplayManager.SceneSupportsObjectPlacement)
+            {
+                helpText +=
+                @"
+    Placement Controls:
+
+        'C' - place a cube hologram in the scene, press 'C' again to confirm location
+        'V' - place a sphere hologram in the scene, press 'V' again to confirm location
+        'B' - change the texture of a scene object, press 'B' again to confirm change
+                ";
             }
+        
+        }
 
             HelpText.Clear();
             HelpText.Append(helpText);

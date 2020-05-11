@@ -6,6 +6,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
+    using UnityEngine.SceneManagement;
 
     /// <summary>
     /// Different rendering modes available for scene objects.
@@ -146,6 +147,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         private float _timeElapsedSinceLastAutoRefresh = 0f;
         private bool _pcDisplayStarted = false;
         private Guid _lastDisplayedSceneGuid;
+
+        public bool SceneSupportsObjectPlacement;
+
         /// <summary>
         /// Initialization.
         /// </summary>
@@ -160,6 +164,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             WorldMeshMaterial = WorldMeshMaterial == null ? Resources.Load<Material>("Materials/WireframeTransparent") : WorldMeshMaterial;
             LabelFont = LabelFont == null ? (Font)Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") : LabelFont;
             StatusText = StatusText == null ? GameObject.Find("StatusText").GetComponent<UITextDisplay>() : StatusText;
+
+            SceneSupportsObjectPlacement = SceneManager.GetActiveScene().name == "SceneUnderstandingSample-Placement";
 
             // To ensure that the first update, as part of auto refresh, happens immediately.
             _timeElapsedSinceLastAutoRefresh = AutoRefreshIntervalInSeconds;
@@ -255,10 +261,13 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     SUUtils.DestroyAllGameObjectsUnderParent(SceneRoot.transform);
 
                     //This will destroy all virtually placed gameobjects that are not part of the original scene
-                    SUUtils.DestroyAllGameObjectsUnderParent(objPlacementComponent.goPlaceableObjectsContainer.transform);
-                    objPlacementComponent.isPlacingObject = false;
-                    objPlacementComponent.goCurrentObjectToPlace = null;
-
+                    if(SceneSupportsObjectPlacement)
+                    {
+                        SUUtils.DestroyAllGameObjectsUnderParent(objPlacementComponent.goPlaceableObjectsContainer.transform);
+                        objPlacementComponent.isPlacingObject = false;
+                        objPlacementComponent.goCurrentObjectToPlace = null;
+                    }
+                    
                     // Return to account for the destruction of the game objects at the end of the frame.
                     yield return null;
 
@@ -381,6 +390,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                                     {
                                         SUUtils.ApplyQuadRegionMask(quad, soChildGO, color);
                                     }
+
+                                    //Add a box collider for physics
+                                    BoxCollider col = soChildGO.GetComponent<BoxCollider>() == null ? soChildGO.AddComponent<BoxCollider>() : soChildGO.GetComponent<BoxCollider>();
                                 }
                                 
                             }
@@ -388,13 +400,13 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                         case VisualizationMode.Mesh:
                         case VisualizationMode.Wireframe:
                             {
-                                // Get the meshes from the SU API.
-                                IEnumerable<SceneUnderstanding.SceneMesh> meshes = sceneObject.Meshes;
-
-                                foreach(SceneUnderstanding.SceneMesh mesh in meshes)
+                                for(int i=0; i<sceneObject.Meshes.Count; i++)
                                 {
+                                    SceneUnderstanding.SceneMesh SUGeometryMesh = sceneObject.Meshes[i];
+                                    SceneUnderstanding.SceneMesh SUColliderMesh = sceneObject.ColliderMeshes[i];
+
                                     // Generate the unity mesh for the Scene Understanding mesh.
-                                    Mesh unityMesh = SUUtils.GenerateUnityMeshForSceneObjectMesh(mesh);
+                                    Mesh unityMesh = SUUtils.GenerateUnityMeshForSceneObjectMesh(SUGeometryMesh);
 
                                     // Create a game object with the above unity mesh.
                                     soChildGO = SUUtils.CreateGameObjectWithMeshComponents(
@@ -403,12 +415,21 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                                         unityMesh, 
                                         SceneObjectVisualizationMode == VisualizationMode.Mesh ? SceneObjectMeshMaterial : SceneObjectWireframeMaterial, 
                                         SceneObjectVisualizationMode == VisualizationMode.Mesh ? color : null);
+
+                                    //Generate a unity mesh for physics
+                                    Mesh unityColliderMesh = SUUtils.GenerateUnityMeshForSceneObjectMesh(SUColliderMesh);
+
+                                    //Set the Collider Mesh data from Scene Understanding to the Collider Component in Unity
+                                    MeshCollider col = soChildGO.GetComponent<MeshCollider>() == null ? soChildGO.AddComponent<MeshCollider>() : soChildGO.GetComponent<MeshCollider>();
+                                    col.sharedMesh = unityColliderMesh;
                                 }
+
                             }
                             break;
                         default:
                             break;
                     }
+
                 }
 
                 if (DisplayTextLabels)
@@ -424,23 +445,17 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 }
 
                 // When running on device, add a worldanchor component to keep the scene object aligned to the real world. 
-                // When running on PC, add a boxcollider component, that is used for the 'Focus' functionality (in CameraMovement.cs).
                 if (SUDataProvider.RunOnDevice)
                 {
                     soGO.AddComponent<UnityEngine.XR.WSA.WorldAnchor>();
                 }
-                else
-                {
-                    foreach(Transform child in soGO.transform)
-                    {
-                        child.gameObject.AddComponent<BoxCollider>();
-                    }
-                }
+            
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
             }
+
             return true;
         }
     }
