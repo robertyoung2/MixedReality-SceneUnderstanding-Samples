@@ -150,6 +150,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         public bool SceneSupportsObjectPlacement;
 
+        public NavMeshGenerator navmeshGenComponent = null;
+
         /// <summary>
         /// Initialization.
         /// </summary>
@@ -312,6 +314,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             StatusText.Append("SceneUnderstandingDisplayManager.DisplayData: Display completed.");
             _displayInProgress = false;
             _lastDisplayedSceneGuid = latestSceneData.Item1;
+
+            navmeshGenComponent.BakeMesh();
+
         }
 
         /// <summary>
