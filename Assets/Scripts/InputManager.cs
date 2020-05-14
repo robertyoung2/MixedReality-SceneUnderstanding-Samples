@@ -6,6 +6,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
     using UnityEngine;
     using UnityEngine.Windows.Speech;
     using UnityEngine.XR.WSA.Input;
+    using UnityEngine.SceneManagement;
 
     /// <summary>
     /// Deals with input in the form of speech or hand gestures, to control the various features and functionalities available within this sample.
@@ -151,6 +152,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Tooltip("Component that handles Object Placement Logic")]
         public ObjectPlacementManager objPlacementComponent;
 
+        public PathFindingController pathfindComponent;
+
         [Tooltip("Enables the placement of a cube hologram in unity scenes that support it.")]
         public string Keyword_PlaceCube = "place cube";
 
@@ -159,6 +162,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         [Tooltip("Enables the displaying of Help Text.")]
         public string Keyword_PlaceTexture = "place texture";
+
+        public string KeyWord_Go = "go";
 
         /// <summary>
         /// Component that recognizes hand gestures.
@@ -256,7 +261,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 Keyword_HelpTextOn,
                 Keyword_PlaceCube,
                 Keyword_PlaceSphere,
-                Keyword_PlaceTexture
+                Keyword_PlaceTexture,
+                KeyWord_Go
             };
 
             // Create, configure and start the keyword recognizer.
@@ -482,6 +488,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 {
                     objPlacementComponent.FinishTexturePlacement();
                 }
+            }
+            else if(arg.Contains(KeyWord_Go) && SceneManager.GetActiveScene().name == "SceneUnderstandingSample-NavMeshPathFinding")
+            {
+                pathfindComponent.MoveAgent();
             }
         }
 

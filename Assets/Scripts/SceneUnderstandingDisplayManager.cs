@@ -315,7 +315,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             _displayInProgress = false;
             _lastDisplayedSceneGuid = latestSceneData.Item1;
 
-            navmeshGenComponent.BakeMesh();
+            if(SceneManager.GetActiveScene().name == "SceneUnderstandingSample-NavMeshPathFinding")
+                navmeshGenComponent.BakeMesh();
 
         }
 
