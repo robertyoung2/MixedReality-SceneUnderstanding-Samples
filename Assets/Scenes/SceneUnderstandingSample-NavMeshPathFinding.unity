@@ -1036,7 +1036,6 @@ MonoBehaviour:
   gbjRoot: {fileID: 1004611288}
   SceneObjectMesh: {fileID: 2100000, guid: 0746671642388094aa5fc149eb6c23be, type: 2}
   mshPawn: {fileID: 4300000, guid: 07a0fef1d8e6f6145990139951fa4b99, type: 3}
-  inputmnger: {fileID: 0}
 --- !u!114 &1353616393
 MonoBehaviour:
   m_ObjectHideFlags: 0

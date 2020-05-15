@@ -14,7 +14,7 @@ public class NavMeshGenerator : MonoBehaviour
 
     public Mesh mshPawn;
 
-    public Microsoft.MixedReality.SceneUnderstanding.Samples.Unity.InputManager inputmnger;
+    //public Microsoft.MixedReality.SceneUnderstanding.Samples.Unity.InputManager inputmnger;
 
     // Start is called before the first frame update
     void Start()
