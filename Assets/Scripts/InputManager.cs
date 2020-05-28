@@ -5,7 +5,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
     using System.Threading.Tasks;
     using UnityEngine;
     using UnityEngine.Windows.Speech;
-    using UnityEngine.XR.WSA.Input;
+    //using UnityEngine.XR.WSA.Input;
 
     /// <summary>
     /// Deals with input in the form of speech or hand gestures, to control the various features and functionalities available within this sample.
@@ -151,7 +151,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         /// <summary>
         /// Component that recognizes hand gestures.
         /// </summary>
-        private GestureRecognizer _gestureRecognizer;
+        //private GestureRecognizer _gestureRecognizer;
 
         /// <summary>
         /// Component that recognizes speech phrases.
@@ -196,10 +196,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
 
             // Create, configure and start the gesture recognizer.
-            _gestureRecognizer = new GestureRecognizer();
-            _gestureRecognizer.SetRecognizableGestures(GestureSettings.Tap);
-            _gestureRecognizer.Tapped += GestureRecognizer_Tapped;
-            _gestureRecognizer.StartCapturingGestures();
+            //_gestureRecognizer = new GestureRecognizer();
+            //_gestureRecognizer.SetRecognizableGestures(GestureSettings.Tap);
+            //_gestureRecognizer.Tapped += GestureRecognizer_Tapped;
+            //_gestureRecognizer.StartCapturingGestures();
 
             string[] keywords = new string[]
             {
@@ -247,7 +247,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         /// <summary>
         /// Callback for the tap hand gesture.
         /// </summary>
-        private void GestureRecognizer_Tapped(TappedEventArgs obj)
+        private void GestureRecognizer_Tapped(/*TappedEventArgs obj*/)
         {
             Logger.Log("InputManager.GestureRecognizer_Tapped: Tap recognized.");
             SUDisplayManager.StartDisplay();
