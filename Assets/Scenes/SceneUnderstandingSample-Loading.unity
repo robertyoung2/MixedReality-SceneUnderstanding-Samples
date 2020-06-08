@@ -473,14 +473,15 @@ MonoBehaviour:
   AutoRefresh: 1
   AutoRefreshIntervalInSeconds: 10
   RenderSceneObjects: 1
-  SceneObjectVisualizationMode: 2
-  RenderPlatformSceneObjects: 1
+  SceneObjectVisualizationMode: 0
+  RenderPlatformSceneObjects: 0
   RenderBackgroundSceneObjects: 1
   RenderUnknownSceneObjects: 1
   RenderCompletelyInferredSceneObjects: 1
   RenderWorldMesh: 0
   objPlacementComponent: {fileID: 616499355}
   SceneSupportsObjectPlacement: 0
+  navmeshGenComponent: {fileID: 0}
 --- !u!114 &481059724
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -623,6 +624,11 @@ MonoBehaviour:
   Keyword_HelpTextOff: help off
   Keyword_HelpTextOn: help on
   objPlacementComponent: {fileID: 616499355}
+  pathfindComponent: {fileID: 0}
+  Keyword_PlaceCube: place cube
+  Keyword_PlaceSphere: place sphere
+  Keyword_PlaceTexture: place texture
+  KeyWord_Go: go
 --- !u!4 &578169622
 Transform:
   m_ObjectHideFlags: 0
