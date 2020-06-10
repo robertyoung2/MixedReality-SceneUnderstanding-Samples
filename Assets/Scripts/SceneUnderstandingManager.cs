@@ -31,114 +31,55 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
     public class SceneUnderstandingManager : MonoBehaviour
     {
-        /// <summary>
-        /// When enabled, the device path will get exercised. Otherwise, previously saved, serialized scenes will be loaded and served.
-        /// </summary>
-        [Tooltip("When enabled, the device path will get exercised. Otherwise, previously saved, serialized scenes will be loaded and served.")]
+        [Header("Data Loader Mode")]
+        [Tooltip("When enabled, the scene will run using a device (e.g Hololens). Otherwise, a previously saved, serialized scene will be loaded and served from your PC.")]
         public bool RunOnDevice = true;
+        [Tooltip("The scene to load when not running on the device (e.g SU_Kitchen in Resources/SerializedScenesForPCPath).")]
+        public TextAsset SUSerializedScenePath = null;
 
-        /// <summary>
-        /// The scene to load when not running on the device.
-        /// </summary>
-        [Tooltip("The scene to load when not running on the device.")]
-        public TextAsset SUSerializedScenePath;
-
-        /// <summary>
-        /// Radius of the sphere around the camera, which is used to query the environment.
-        /// </summary>
-        [Tooltip("Radius of the sphere around the camera, which is used to query the environment.")]
-        public float BoundingSphereRadiusInMeters = 10;
-
-        /// <summary>
-        /// When enabled, requests observed and inferred regions for scene objects.
-        /// When disabled, requests only the observed regions for scene objects.
-        /// </summary>
-        [Tooltip("When enabled, requests observed and inferred regions for scene objects. When disabled, requests only the observed regions for scene objects.")]
-        public bool RequestInferredRegions = true;
-
-        /// <summary>
-        /// GameObject that will be the parent of all Scene Understanding related game objects.
-        /// </summary>
-        [Tooltip("GameObject that will be the parent of all Scene Understanding related game objects.")]
+        [Header("Root GameObject")]
+        [Tooltip("GameObject that will be the parent of all Scene Understanding related game objects. If field is left empty an empty gameobject named 'Root' will be created.")]
         public GameObject SceneRoot = null;
 
-        /// <summary>
-        /// Material for scene object meshes.
-        /// </summary>
-        [Tooltip("Material for scene object meshes.")]
-        public Material SceneObjectMeshMaterial = null;
+        [Header("Data Loader Parameters")]
+        [Tooltip("Radius of the sphere around the camera, which is used to query the environment.")]
+        [Range(5f, 100f)]
+        public float BoundingSphereRadiusInMeters = 10.0f;
+        [Tooltip("When enabled, the latest data from Scene Understanding data provider will be displayed periodically (controlled by the AutoRefreshIntervalInSeconds float).")]
+        public bool AutoRefresh = true;
+        [Tooltip("Interval to use for auto refresh, in seconds.")]
+        [Range(1f, 60f)]
+        public float AutoRefreshIntervalInSeconds = 10.0f;
 
-        /// <summary>
-        /// Material for scene object quads.
-        /// </summary>
-        [Tooltip("Material for scene object quads.")]
-        public Material SceneObjectQuadMaterial = null;
-
-        /// <summary>
-        /// Material for scene object mesh wireframes.
-        /// </summary>
-        [Tooltip("Material for scene object mesh wireframes.")]
-        public Material SceneObjectWireframeMaterial = null;
-
-        /// <summary>
-        /// Display text labels for the scene objects.
-        /// </summary>
-        [Tooltip("Display text labels for the scene objects.")]
-        public bool DisplayTextLabels = true;
-
-        /// <summary>
-        /// Toggles display of all scene objects, except for the world mesh.
-        /// </summary>
-        [Tooltip("Toggles display of all scene objects, except for the world mesh.")]
-        public bool RenderSceneObjects = true;
-
-        /// <summary>
-        /// Type of visualization to use for scene objects.
-        /// </summary>
+        [Header("Render Mode")]
         [Tooltip("Type of visualization to use for scene objects.")]
         public RenderMode SceneObjectRenderMode = RenderMode.Mesh;
 
-        /// <summary>
-        /// Toggles display of large, horizontal scene objects, aka 'Platform'.
-        /// </summary>
+        [Header("Materials")]
+        [Tooltip("Material for scene object meshes.")]
+        public Material SceneObjectMeshMaterial = null;
+        [Tooltip("Material for scene object quads.")]
+        public Material SceneObjectQuadMaterial = null;
+        [Tooltip("Material for scene object mesh wireframes.")]
+        public Material SceneObjectWireframeMaterial = null;
+
+        [Header("Render Filters")]
+        [Tooltip("Toggles display of all scene objects, except for the world mesh.")]
+        public bool RenderSceneObjects = true;
+        [Tooltip("Display text labels for the scene objects.")]
+        public bool DisplayTextLabels = true;
         [Tooltip("Toggles display of large, horizontal scene objects, aka 'Platform'.")]
         public bool RenderPlatformSceneObjects = true;
-
-        /// <summary>
-        /// Toggles the display of background scene objects.
-        /// </summary>
         [Tooltip("Toggles the display of background scene objects.")]
         public bool RenderBackgroundSceneObjects = true;
-
-        /// <summary>
-        /// Toggles the display of unknown scene objects.
-        /// </summary>
         [Tooltip("Toggles the display of unknown scene objects.")]
         public bool RenderUnknownSceneObjects = true;
-
-        /// <summary>
-        /// Toggles the display of completely inferred scene objects.
-        /// </summary>
-        [Tooltip("Toggles the display of completely inferred scene objects.")]
-        public bool RenderCompletelyInferredSceneObjects = true;
-
-        /// <summary>
-        /// Toggles the display of the world mesh.
-        /// </summary>
         [Tooltip("Toggles the display of the world mesh.")]
         public bool RenderWorldMesh = false;
-
-        /// <summary>
-        /// When enabled, the latest data from Scene Understanding data provider will be displayed periodically (controlled by the AutoRefreshIntervalInSeconds float).
-        /// </summary>
-        [Tooltip("When enabled, the latest data from Scene Understanding data provider will be displayed periodically (controlled by the AutoRefreshIntervalInSeconds float).")]
-        public bool AutoRefresh = true;
-
-        /// <summary>
-        /// Interval to use for auto refresh, in seconds.
-        /// </summary>
-        [Tooltip("Interval to use for auto refresh, in seconds.")]
-        public float AutoRefreshIntervalInSeconds = 10f;
+        [Tooltip("When enabled, requests observed and inferred regions for scene objects. When disabled, requests only the observed regions for scene objects.")]
+        public bool RequestInferredRegions = true;
+        [Tooltip("Toggles the display of completely inferred scene objects.")]
+        public bool RenderCompletelyInferredSceneObjects = true;
 
         private readonly float minBoundingSphereRadiusInMeters = 5f;
         private readonly float maxBoundingSphereRadiusInMeters = 100f;
@@ -341,7 +282,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         private IEnumerator DisplayData()
         {
-            Debug.Log("About to display the latest set of Scene Objects");
+            Debug.Log("SceneUnderstandingManager.DisplayData: About to display the latest set of Scene Objects");
 
             byte[] latestSceneSnapShot = GetLatestSUScene();
             Guid latestGuidSnapShot = GetLatestSUSceneId();
@@ -856,7 +797,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             quad.GetSurfaceMask(width, height, mask);
 
             MeshRenderer meshRenderer = obj.GetComponent<MeshRenderer>();
-            if (meshRenderer == null || meshRenderer.material == null || meshRenderer.material.HasProperty("_MainTex") == false)
+            if (meshRenderer == null || meshRenderer.sharedMaterial == null || meshRenderer.sharedMaterial.HasProperty("_MainTex") == false)
             {
                 Debug.LogWarning("SceneUnderstandingManager.ApplyQuadRegionMask: Mesh renderer component is null or does not have a valid material.");
                 return;
@@ -887,7 +828,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             texture.Apply(true);
 
             // Set the texture on the material.
-            meshRenderer.material.mainTexture = texture;
+            meshRenderer.sharedMaterial.mainTexture = texture;
         }
 
         private void AddLabel(GameObject obj, string label)
@@ -915,12 +856,62 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
             // Add a mesh renderer
             MeshRenderer renderer = textGO.GetComponent<MeshRenderer>();
-            renderer.material.color = new Color(0, 1.0f, 1.0f);
+            renderer.sharedMaterial.color = new Color(0, 1.0f, 1.0f);
             // Render on top of everything else.
-            renderer.material.renderQueue = 3000;
+            renderer.sharedMaterial.renderQueue = 3000;
 
             // Add the billboard script.
             textGO.AddComponent<Billboard>();
+        }
+
+        public void BakeScene()
+        {
+            Debug.Log("[IN EDITOR] SceneUnderStandingManager.BakeScene: Bake Started");
+            DestroyImmediate(SceneRoot.gameObject);
+            if(!RunOnDevice)
+            {
+                SceneRoot = SceneRoot == null ? new GameObject("Root") : SceneRoot;
+                SceneObjectMeshMaterial = SceneObjectMeshMaterial == null ? Resources.Load("Materials/SceneObjectMesh") as Material : SceneObjectMeshMaterial;
+                SceneObjectQuadMaterial = SceneObjectQuadMaterial == null ? Resources.Load("Materials/SceneObjectQuad") as Material : SceneObjectQuadMaterial;
+                SceneObjectWireframeMaterial = SceneObjectWireframeMaterial == null ? Resources.Load("Materials/WireframeTransparent") as Material : SceneObjectWireframeMaterial;
+                SUSerializedScenePath = SUSerializedScenePath == null ? Resources.Load("SerializedScenesForPCPath/SU_Kitchen") as TextAsset : SUSerializedScenePath;
+
+                if(SUSerializedScenePath != null)
+                {
+                    lock(SUDataLock)
+                    {
+                        latestSUSceneData = SUSerializedScenePath.bytes;
+                        latestSceneGuid = Guid.NewGuid();
+                    }
+                }
+
+                byte[] latestSceneSnapShot = GetLatestSUScene();
+                Guid latestGuidSnapShot = GetLatestSUSceneId();
+                SceneUnderstanding.Scene suScene = SceneUnderstanding.Scene.Deserialize(latestSceneSnapShot);
+
+                if(suScene != null)
+                {
+                    System.Numerics.Matrix4x4 sceneToUnityTransformAsMatrix4x4 = GetSceneToUnityTransformAsMatrix4x4(suScene);
+
+                    if(sceneToUnityTransformAsMatrix4x4 != null)
+                    {
+                        SetUnityTransformFromMatrix4x4(SceneRoot.transform, sceneToUnityTransformAsMatrix4x4, RunOnDevice);
+
+                        if(!RunOnDevice)
+                        {
+                            OrientSceneForPC(SceneRoot, suScene);
+                        }
+
+                        IEnumerable<SceneUnderstanding.SceneObject> sceneObjects = suScene.SceneObjects;
+                        foreach (SceneUnderstanding.SceneObject sceneObject in sceneObjects)
+                        {
+                            DisplaySceneObject(sceneObject);
+                        }
+                    }
+                }
+
+                Debug.Log("[IN EDITOR] SceneUnderStandingManager.BakeScene: Display Completed");
+            }
         }
 
     }
