@@ -35,7 +35,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Tooltip("When enabled, the scene will run using a device (e.g Hololens). Otherwise, a previously saved, serialized scene will be loaded and served from your PC.")]
         public bool RunOnDevice = true;
         [Tooltip("The scene to load when not running on the device (e.g SU_Kitchen in Resources/SerializedScenesForPCPath).")]
-        public TextAsset SUSerializedScenePath = null;
+        public List<TextAsset> SUSerializedScenePaths = new List<TextAsset>(0);
 
         [Header("Root GameObject")]
         [Tooltip("GameObject that will be the parent of all Scene Understanding related game objects. If field is left empty an empty gameobject named 'Root' will be created.")]
@@ -130,7 +130,11 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             SceneObjectMeshMaterial = SceneObjectMeshMaterial == null ? Resources.Load("Materials/SceneObjectMesh") as Material : SceneObjectMeshMaterial;
             SceneObjectQuadMaterial = SceneObjectQuadMaterial == null ? Resources.Load("Materials/SceneObjectQuad") as Material : SceneObjectQuadMaterial;
             SceneObjectWireframeMaterial = SceneObjectWireframeMaterial == null ? Resources.Load("Materials/WireframeTransparent") as Material : SceneObjectWireframeMaterial;
-            SUSerializedScenePath = SUSerializedScenePath == null ? Resources.Load("SerializedScenesForPCPath/SU_Kitchen") as TextAsset : SUSerializedScenePath;
+
+            if(SUSerializedScenePaths.Count <= 0 )
+            {
+                SUSerializedScenePaths = new List<TextAsset>{Resources.Load("SerializedScenesForPCPath/SU_Kitchen") as TextAsset};
+            }
 
             if(RunOnDevice)
             {
@@ -168,14 +172,16 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
             else
             {
-                if(SUSerializedScenePath != null)
+                /*
+                if(SUSerializedScenePaths != null)
                 {
                     lock(SUDataLock)
                     {
-                        latestSUSceneData = SUSerializedScenePath.bytes;
+                        latestSUSceneData = SUSerializedScenePaths.bytes;
                         latestSceneGuid = Guid.NewGuid();
                     }
                 }
+                */
             }
         }
 
@@ -279,7 +285,6 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
 
             isDisplayInProgress = true;
-
             StartCoroutine(DisplayData());
         }
 
@@ -287,37 +292,59 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         {
             Debug.Log("SceneUnderstandingManager.DisplayData: About to display the latest set of Scene Objects");
 
-            byte[] latestSceneSnapShot = GetLatestSUScene();
-            Guid latestGuidSnapShot = GetLatestSUSceneId();
-            SceneUnderstanding.Scene suScene = SceneUnderstanding.Scene.Deserialize(latestSceneSnapShot);
-
-            if(suScene != null)
+            List<SceneUnderstanding.Scene> suScenes = new List<SceneUnderstanding.Scene>();
+            
+            if(RunOnDevice)
+            {
+                byte[] latestSceneSnapShot = GetLatestSUScene();
+                Guid latestGuidSnapShot = GetLatestSUSceneId();
+                suScenes.Add(SceneUnderstanding.Scene.Deserialize(latestSceneSnapShot));
+                //This at the end
+                lastDisplayedSceneGuid = latestGuidSnapShot;
+            }
+            else
+            {
+                
+                foreach(TextAsset serializedScene in SUSerializedScenePaths)
+                {
+                    if(serializedScene != null)
+                    {
+                        byte[] sceneData = serializedScene.bytes;
+                        suScenes.Add(SceneUnderstanding.Scene.Deserialize(sceneData));
+                    }
+                }
+            }
+            
+            if(suScenes.Count > 0)
             {
                 DestroyAllGameObjectsUnderParent(SceneRoot.transform);
 
                 yield return null;
 
-                System.Numerics.Matrix4x4 sceneToUnityTransformAsMatrix4x4 = GetSceneToUnityTransformAsMatrix4x4(suScene);
-
-                if(sceneToUnityTransformAsMatrix4x4 != null)
+                foreach (SceneUnderstanding.Scene suScene in suScenes)
                 {
-                    SetUnityTransformFromMatrix4x4(SceneRoot.transform, sceneToUnityTransformAsMatrix4x4, RunOnDevice);
+                    System.Numerics.Matrix4x4 sceneToUnityTransformAsMatrix4x4 = GetSceneToUnityTransformAsMatrix4x4(suScene);
 
-                    if(!RunOnDevice)
+                    if(sceneToUnityTransformAsMatrix4x4 != null)
                     {
-                        OrientSceneForPC(SceneRoot, suScene);
-                    }
+                        SetUnityTransformFromMatrix4x4(SceneRoot.transform, sceneToUnityTransformAsMatrix4x4, RunOnDevice);
 
-                    IEnumerable<SceneUnderstanding.SceneObject> sceneObjects = suScene.SceneObjects;
-
-                    int i = 0;
-                    foreach (SceneUnderstanding.SceneObject sceneObject in sceneObjects)
-                    {
-                        if(DisplaySceneObject(sceneObject))
+                        if(!RunOnDevice)
                         {
-                            if(++i % 5 == 0)
+                            OrientSceneForPC(SceneRoot, suScene);
+                        }
+
+                        IEnumerable<SceneUnderstanding.SceneObject> sceneObjects = suScene.SceneObjects;
+
+                        int i = 0;
+                        foreach (SceneUnderstanding.SceneObject sceneObject in sceneObjects)
+                        {
+                            if(DisplaySceneObject(sceneObject))
                             {
-                                yield return null;
+                                if(++i % 5 == 0)
+                                {
+                                    yield return null;
+                                }
                             }
                         }
                     }
@@ -325,7 +352,6 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
 
             isDisplayInProgress = false;
-            lastDisplayedSceneGuid = latestGuidSnapShot;
 
             Debug.Log("SceneUnderStandingManager.DisplayData: Display Completed");
         }
@@ -877,42 +903,47 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 SceneObjectMeshMaterial = SceneObjectMeshMaterial == null ? Resources.Load("Materials/SceneObjectMesh") as Material : SceneObjectMeshMaterial;
                 SceneObjectQuadMaterial = SceneObjectQuadMaterial == null ? Resources.Load("Materials/SceneObjectQuad") as Material : SceneObjectQuadMaterial;
                 SceneObjectWireframeMaterial = SceneObjectWireframeMaterial == null ? Resources.Load("Materials/WireframeTransparent") as Material : SceneObjectWireframeMaterial;
-                SUSerializedScenePath = SUSerializedScenePath == null ? Resources.Load("SerializedScenesForPCPath/SU_Kitchen") as TextAsset : SUSerializedScenePath;
-
-                if(SUSerializedScenePath != null)
+                
+                if(SUSerializedScenePaths.Count <= 0 )
                 {
-                    lock(SUDataLock)
+                    SUSerializedScenePaths = new List<TextAsset>{Resources.Load("SerializedScenesForPCPath/SU_Kitchen") as TextAsset};
+                }
+                
+                List<SceneUnderstanding.Scene> suScenes = new List<SceneUnderstanding.Scene>();
+
+                foreach(TextAsset serializedScene in SUSerializedScenePaths)
+                {
+                    if(serializedScene)
                     {
-                        latestSUSceneData = SUSerializedScenePath.bytes;
-                        latestSceneGuid = Guid.NewGuid();
+                        byte[] sceneData = serializedScene.bytes;
+                        suScenes.Add(SceneUnderstanding.Scene.Deserialize(sceneData));
                     }
                 }
-
-                byte[] latestSceneSnapShot = GetLatestSUScene();
-                Guid latestGuidSnapShot = GetLatestSUSceneId();
-                SceneUnderstanding.Scene suScene = SceneUnderstanding.Scene.Deserialize(latestSceneSnapShot);
-
-                if(suScene != null)
+                
+                foreach (SceneUnderstanding.Scene suScene in suScenes)
                 {
-                    System.Numerics.Matrix4x4 sceneToUnityTransformAsMatrix4x4 = GetSceneToUnityTransformAsMatrix4x4(suScene);
-
-                    if(sceneToUnityTransformAsMatrix4x4 != null)
+                    if(suScene != null)
                     {
-                        SetUnityTransformFromMatrix4x4(SceneRoot.transform, sceneToUnityTransformAsMatrix4x4, RunOnDevice);
+                        System.Numerics.Matrix4x4 sceneToUnityTransformAsMatrix4x4 = GetSceneToUnityTransformAsMatrix4x4(suScene);
 
-                        if(!RunOnDevice)
+                        if(sceneToUnityTransformAsMatrix4x4 != null)
                         {
-                            OrientSceneForPC(SceneRoot, suScene);
-                        }
+                            SetUnityTransformFromMatrix4x4(SceneRoot.transform, sceneToUnityTransformAsMatrix4x4, RunOnDevice);
 
-                        IEnumerable<SceneUnderstanding.SceneObject> sceneObjects = suScene.SceneObjects;
-                        foreach (SceneUnderstanding.SceneObject sceneObject in sceneObjects)
-                        {
-                            DisplaySceneObject(sceneObject);
+                            if(!RunOnDevice)
+                            {
+                                OrientSceneForPC(SceneRoot, suScene);
+                            }
+
+                            IEnumerable<SceneUnderstanding.SceneObject> sceneObjects = suScene.SceneObjects;
+                            foreach (SceneUnderstanding.SceneObject sceneObject in sceneObjects)
+                            {
+                                DisplaySceneObject(sceneObject);
+                            }
                         }
                     }
                 }
-
+                
                 Debug.Log("[IN EDITOR] SceneUnderStandingManager.BakeScene: Display Completed");
             }
         }

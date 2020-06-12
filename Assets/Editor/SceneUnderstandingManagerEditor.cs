@@ -21,17 +21,18 @@
         SerializedProperty serializedRenderWorldMesh;
         SerializedProperty serializedRequestInferredRegions;
         SerializedProperty serializedRenderCompletelyInferredSceneObjects;
+        SerializedProperty serializedRenderQuality;
 
         void OnEnable()
         {
             SUManager = this.target as SceneUnderstandingManager;
-            serializedSUScene = serializedObject.FindProperty("SUSerializedScenePath");
+            serializedSUScene = serializedObject.FindProperty("SUSerializedScenePaths");
             serializedRootGameObject = serializedObject.FindProperty("SceneRoot");
             serializedRenderMode = serializedObject.FindProperty("SceneObjectRenderMode");
             serializedMeshMaterial = serializedObject.FindProperty("SceneObjectMeshMaterial");
             serializedQuadMaterial = serializedObject.FindProperty("SceneObjectQuadMaterial");
             serializedWireFrameMaterial = serializedObject.FindProperty("SceneObjectWireframeMaterial");
-
+            serializedRenderQuality = serializedObject.FindProperty("RenderQuality");
             serializedRenderSceneObjects = serializedObject.FindProperty("RenderSceneObjects");
             serializedDisplayTextLabels = serializedObject.FindProperty("DisplayTextLabels");
             serializedRenderPlatformsObjects = serializedObject.FindProperty("RenderPlatformSceneObjects");
@@ -51,7 +52,28 @@
             SUManager.RunOnDevice = EditorGUILayout.Toggle(RunOnDeviceContent,SUManager.RunOnDevice);
             if(!SUManager.RunOnDevice)
             {
-                EditorGUILayout.PropertyField(serializedSUScene);
+                
+                GUILayout.Label("Scene Fragments: ", EditorStyles.boldLabel);
+                if(GUILayout.Button("Add Item", GUILayout.Width(90)))
+                {
+                    SUManager.SUSerializedScenePaths.Add(null);
+                }
+
+                if(GUILayout.Button("Remove Item", GUILayout.Width(90)))
+                {
+                    if(SUManager.SUSerializedScenePaths.Count >= 1)
+                    {
+                        SUManager.SUSerializedScenePaths.RemoveAt(SUManager.SUSerializedScenePaths.Count -1);
+                    }
+                }
+
+                EditorGUI.indentLevel += 1;
+                EditorGUILayout.PropertyField(serializedSUScene,false);
+                for (int i = 0; i < serializedSUScene.arraySize; i++) 
+                {
+			        EditorGUILayout.PropertyField(serializedSUScene.GetArrayElementAtIndex(i));
+		        }
+                EditorGUI.indentLevel -= 1;
             }
             GUILayout.Space(4.0f);
 
@@ -73,6 +95,7 @@
             GUILayout.Space(4.0f);
 
             EditorGUILayout.PropertyField(serializedRenderMode);
+            EditorGUILayout.PropertyField(serializedRenderQuality);
             GUILayout.Space(4.0f);
 
             EditorGUILayout.PropertyField(serializedMeshMaterial);
@@ -118,6 +141,7 @@
                 }
             }
             serializedObject.ApplyModifiedProperties();
+            
         }
     }
 

@@ -437,14 +437,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RunOnDevice: 0
-  SUSerializedScenePath: {fileID: 4900000, guid: 82ce9e90cb0010645b80557a1d4a4263,
-    type: 3}
+  SUSerializedScenePaths:
+  - {fileID: 4900000, guid: a3ac62f334ff6c64687a97120f334411, type: 3}
+  - {fileID: 4900000, guid: 31c46d5a8f93ad24394c07b103a843ec, type: 3}
+  - {fileID: 4900000, guid: a1d8199470e629141bb734edffdcc38c, type: 3}
   SceneRoot: {fileID: 0}
   BoundingSphereRadiusInMeters: 10
   AutoRefresh: 1
   AutoRefreshIntervalInSeconds: 10
   SceneObjectRenderMode: 2
-  RenderQuality: 1
+  RenderQuality: 0
   SceneObjectMeshMaterial: {fileID: 2100000, guid: 0746671642388094aa5fc149eb6c23be,
     type: 2}
   SceneObjectQuadMaterial: {fileID: 2100000, guid: b965b90bb115d7e4cad26c038848258f,
@@ -455,7 +457,7 @@ MonoBehaviour:
   DisplayTextLabels: 1
   RenderPlatformSceneObjects: 1
   RenderBackgroundSceneObjects: 1
-  RenderUnknownSceneObjects: 1
+  RenderUnknownSceneObjects: 0
   RenderWorldMesh: 0
   RequestInferredRegions: 1
   RenderCompletelyInferredSceneObjects: 1
