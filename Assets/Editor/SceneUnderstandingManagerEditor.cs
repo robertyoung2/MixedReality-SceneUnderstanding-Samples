@@ -22,8 +22,6 @@
         SerializedProperty serializedRequestInferredRegions;
         SerializedProperty serializedRenderCompletelyInferredSceneObjects;
 
-
-
         void OnEnable()
         {
             SUManager = this.target as SceneUnderstandingManager;

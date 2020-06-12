@@ -54,7 +54,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Header("Render Mode")]
         [Tooltip("Type of visualization to use for scene objects.")]
         public RenderMode SceneObjectRenderMode = RenderMode.Mesh;
-
+        [Tooltip("Level Of Detail for the scene objects.")]
+        public SceneUnderstanding.SceneMeshLevelOfDetail RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Medium;
+        
         [Header("Materials")]
         [Tooltip("Material for scene object meshes.")]
         public Material SceneObjectMeshMaterial = null;
@@ -88,7 +90,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         private Guid latestSceneGuid;
         private Guid lastDisplayedSceneGuid;
         private bool isDisplayInProgress = false;
-        private float timeElapsedSinceLastAutoRefresh = 0.0f;
+        [HideInInspector]
+        public float timeElapsedSinceLastAutoRefresh = 0.0f;
         private bool pcDisplayStarted = false;
         
         private byte[] GetLatestSUScene()
@@ -211,7 +214,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             while (true)
             {
                 // Always request quads, meshes and the world mesh. SceneUnderstandingDisplayManager will take care of rendering only what the user has asked for.
-                RetrieveData(BoundingSphereRadiusInMeters, true, true, RequestInferredRegions, true, SceneUnderstanding.SceneMeshLevelOfDetail.Coarse);
+                RetrieveData(BoundingSphereRadiusInMeters, true, true, RequestInferredRegions, true, RenderQuality);
             }
         }
 
@@ -267,7 +270,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                             stopwatch.Elapsed.TotalSeconds));
         }
 
-        private void StartDisplay()
+        public void StartDisplay()
         {
             if(isDisplayInProgress)
             {
