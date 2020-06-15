@@ -2,11 +2,16 @@
 namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 {
     using System;
+    using System.IO;
     using System.Collections;
     using System.Threading.Tasks;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using UnityEngine;
+
+    #if WINDOWS_UWP
+    using WindowsStorage = Windows.Storage;
+    #endif
 
     /// <summary>
     /// Different rendering modes available for scene objects.
@@ -31,6 +36,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
     public class SceneUnderstandingManager : MonoBehaviour
     {
+        #region Public Variables
+
         [Header("Data Loader Mode")]
         [Tooltip("When enabled, the scene will run using a device (e.g Hololens). Otherwise, a previously saved, serialized scene will be loaded and served from your PC.")]
         public bool RunOnDevice = true;
@@ -83,6 +90,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Tooltip("Toggles the display of completely inferred scene objects.")]
         public bool RenderCompletelyInferredSceneObjects = true;
 
+        #endregion
+
+        #region Private Variables
+
         private readonly float minBoundingSphereRadiusInMeters = 5f;
         private readonly float maxBoundingSphereRadiusInMeters = 100f;
         private byte[] latestSUSceneData = null;
@@ -93,37 +104,11 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [HideInInspector]
         public float timeElapsedSinceLastAutoRefresh = 0.0f;
         private bool pcDisplayStarted = false;
+
+        #endregion
         
-        private byte[] GetLatestSUScene()
-        {
-            byte[] SUDataToReturn = null;
+        #region Unity Start and Update
 
-            lock(SUDataLock)
-            {
-                if(latestSUSceneData != null)
-                {
-                    int SceneLength = latestSUSceneData.Length;
-                    SUDataToReturn = new byte [SceneLength];
-                    Array.Copy(latestSUSceneData,SUDataToReturn,SceneLength);
-                }
-            }
-
-            return SUDataToReturn;
-        }
-
-        private Guid GetLatestSUSceneId()
-        {
-            Guid SUSceneIdToReturn;
-
-            lock(SUDataLock)
-            {
-                SUSceneIdToReturn = latestSceneGuid;
-            }
-
-            return SUSceneIdToReturn;
-        }
-        
-        // Start is called before the first frame update
         private async void Start()
         {
             SceneRoot = SceneRoot == null ? new GameObject("Root") : SceneRoot;
@@ -170,19 +155,6 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     Debug.LogException(e);
                 }
             }
-            else
-            {
-                /*
-                if(SUSerializedScenePaths != null)
-                {
-                    lock(SUDataLock)
-                    {
-                        latestSUSceneData = SUSerializedScenePaths.bytes;
-                        latestSceneGuid = Guid.NewGuid();
-                    }
-                }
-                */
-            }
         }
 
         private void Update()
@@ -209,6 +181,39 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
         }
 
+        #endregion
+        
+        #region Data Querying and Consumption
+
+        private byte[] GetLatestSUScene()
+        {
+            byte[] SUDataToReturn = null;
+
+            lock(SUDataLock)
+            {
+                if(latestSUSceneData != null)
+                {
+                    int SceneLength = latestSUSceneData.Length;
+                    SUDataToReturn = new byte [SceneLength];
+                    Array.Copy(latestSUSceneData,SUDataToReturn,SceneLength);
+                }
+            }
+
+            return SUDataToReturn;
+        }
+
+        private Guid GetLatestSUSceneId()
+        {
+            Guid SUSceneIdToReturn;
+
+            lock(SUDataLock)
+            {
+                SUSceneIdToReturn = latestSceneGuid;
+            }
+
+            return SUSceneIdToReturn;
+        }
+        
         /// <summary>
         /// Retrieves Scene Understanding data continuously from the runtime.
         /// </summary>
@@ -276,6 +281,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                             stopwatch.Elapsed.TotalSeconds));
         }
 
+        #endregion
+
+        #region Display Data into Unity
+
         public void StartDisplay()
         {
             if(isDisplayInProgress)
@@ -304,7 +313,6 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
             else
             {
-                
                 foreach(TextAsset serializedScene in SUSerializedScenePaths)
                 {
                     if(serializedScene != null)
@@ -354,154 +362,6 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             isDisplayInProgress = false;
 
             Debug.Log("SceneUnderStandingManager.DisplayData: Display Completed");
-        }
-
-        private void DestroyAllGameObjectsUnderParent(Transform parentTransform)
-        {
-            if (parentTransform == null)
-            {
-                Logger.LogWarning("SceneUnderstandingManager.DestroyAllGameObjectsUnderParent: Parent is null.");
-                return;
-            }
-            
-            foreach (Transform child in parentTransform)
-            {
-                Destroy(child.gameObject);
-            }
-        }
-
-        private System.Numerics.Matrix4x4 GetSceneToUnityTransformAsMatrix4x4(SceneUnderstanding.Scene scene)
-        {
-            System.Numerics.Matrix4x4? sceneToUnityTransform = System.Numerics.Matrix4x4.Identity;
-
-            if(RunOnDevice)
-            {
-                Windows.Perception.Spatial.SpatialCoordinateSystem sceneCoordinateSystem = Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(scene.OriginSpatialGraphNodeId);
-                HolograhicFrameData holoFrameData =  Marshal.PtrToStructure<HolograhicFrameData>(UnityEngine.XR.XRDevice.GetNativePtr());
-                Windows.Perception.Spatial.SpatialCoordinateSystem unityCoordinateSystem = Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem.FromNativePtr(holoFrameData.ISpatialCoordinateSystemPtr);
-
-                sceneToUnityTransform = sceneCoordinateSystem.TryGetTransformTo(unityCoordinateSystem);
-
-                if(sceneToUnityTransform != null)
-                {
-                    sceneToUnityTransform = ConvertRightHandedMatrix4x4ToLeftHanded(sceneToUnityTransform.Value);
-                }
-                else
-                {
-                    Debug.LogWarning("SceneUnderstandingManager.GetSceneToUnityTransform: Scene to Unity transform is null.");
-                }
-            }
-
-            return sceneToUnityTransform.Value;
-        }
-
-        private System.Numerics.Matrix4x4 ConvertRightHandedMatrix4x4ToLeftHanded(System.Numerics.Matrix4x4 matrix)
-        {
-            matrix.M13 = -matrix.M13;
-            matrix.M23 = -matrix.M23;
-            matrix.M43 = -matrix.M43;
-
-            matrix.M31 = -matrix.M31;
-            matrix.M32 = -matrix.M32;
-            matrix.M34 = -matrix.M34;
-
-            return matrix;
-        }
-
-        private void SetUnityTransformFromMatrix4x4(Transform targetTransform, System.Numerics.Matrix4x4 matrix, bool updateLocalTransformOnly = false)
-        {
-            if(targetTransform == null)
-            {
-                Debug.LogWarning("SceneUnderstandingManager.SetUnityTransformFromMatrix4x4: Unity transform is null.");
-                return;
-            }
-
-            Vector3 unityTranslation;
-            Quaternion unityQuat;
-            Vector3 unityScale;
-
-            System.Numerics.Vector3 vector3;
-            System.Numerics.Quaternion quaternion;
-            System.Numerics.Vector3 scale;
-
-            System.Numerics.Matrix4x4.Decompose(matrix, out scale, out quaternion, out vector3);
-
-            unityTranslation = new Vector3(vector3.X, vector3.Y, vector3.Z);
-            unityQuat = new Quaternion(quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
-            unityScale = new Vector3(scale.X, scale.Y, scale.Z);
-
-            if(updateLocalTransformOnly)
-            {
-                targetTransform.localPosition = unityTranslation;
-                targetTransform.localRotation = unityQuat;
-            }
-            else
-            {
-                targetTransform.SetPositionAndRotation(unityTranslation, unityQuat);
-            }
-        }
-
-        private void OrientSceneForPC(GameObject sceneRoot, SceneUnderstanding.Scene suScene)
-        {
-            if(suScene == null)
-            {
-                Debug.Log("SceneUnderstandingManager.OrientSceneForPC: Scene Understanding Scene Data is null.");
-            }
-
-            IEnumerable<SceneUnderstanding.SceneObject> sceneObjects = suScene.SceneObjects;
-            
-            float largestFloorAreaFound = 0.0f;
-            SceneUnderstanding.SceneObject suLargestFloorObj = null;
-            SceneUnderstanding.SceneQuad suLargestFloorQuad = null;
-            foreach(SceneUnderstanding.SceneObject sceneObj in sceneObjects)
-            {
-                if(sceneObj.Kind == SceneUnderstanding.SceneObjectKind.Floor)
-                {
-                    IEnumerable<SceneUnderstanding.SceneQuad> quads = sceneObj.Quads;
-
-                    if(quads != null)
-                    {
-                        foreach(SceneUnderstanding.SceneQuad quad in quads)
-                        {
-                            float quadArea = quad.Extents.X * quad.Extents.Y;
-
-                            if(quadArea > largestFloorAreaFound)
-                            {
-                                largestFloorAreaFound = quadArea;
-                                suLargestFloorObj = sceneObj;
-                                suLargestFloorQuad = quad;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if(suLargestFloorQuad != null)
-            {
-                float quadWith = suLargestFloorQuad.Extents.X;
-                float quadHeight = suLargestFloorQuad.Extents.Y;
-
-                System.Numerics.Vector3 p1 = new System.Numerics.Vector3(-quadWith / 2, -quadHeight / 2, 0);
-                System.Numerics.Vector3 p2 = new System.Numerics.Vector3( quadWith / 2, -quadHeight / 2, 0);
-                System.Numerics.Vector3 p3 = new System.Numerics.Vector3(-quadWith / 2,  quadHeight / 2, 0);
-
-                System.Numerics.Matrix4x4 floorTransform = suLargestFloorObj.GetLocationAsMatrix();
-                floorTransform = TransformUtils.ConvertRightHandedMatrix4x4ToLeftHanded(floorTransform);
-
-                System.Numerics.Vector3 tp1 = System.Numerics.Vector3.Transform(p1, floorTransform);
-                System.Numerics.Vector3 tp2 = System.Numerics.Vector3.Transform(p2, floorTransform);
-                System.Numerics.Vector3 tp3 = System.Numerics.Vector3.Transform(p3, floorTransform);
-
-                System.Numerics.Vector3 p21 = tp2 - tp1;
-                System.Numerics.Vector3 p31 = tp3 - tp1;
-
-                System.Numerics.Vector3 floorNormal = System.Numerics.Vector3.Cross(p31, p21);
-
-                Vector3 floorNormalUnity = new Vector3(floorNormal.X, floorNormal.Y, floorNormal.Z);
-
-                Quaternion rotation = Quaternion.FromToRotation(floorNormalUnity, Vector3.up);
-                SceneRoot.transform.rotation = rotation;
-            }
         }
 
         private bool DisplaySceneObject(SceneUnderstanding.SceneObject suObj)
@@ -893,6 +753,162 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             textGO.AddComponent<Billboard>();
         }
 
+        #endregion
+
+        #region Utility Functions
+
+        private void DestroyAllGameObjectsUnderParent(Transform parentTransform)
+        {
+            if (parentTransform == null)
+            {
+                Logger.LogWarning("SceneUnderstandingManager.DestroyAllGameObjectsUnderParent: Parent is null.");
+                return;
+            }
+            
+            foreach (Transform child in parentTransform)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        private System.Numerics.Matrix4x4 GetSceneToUnityTransformAsMatrix4x4(SceneUnderstanding.Scene scene)
+        {
+            System.Numerics.Matrix4x4? sceneToUnityTransform = System.Numerics.Matrix4x4.Identity;
+
+            if(RunOnDevice)
+            {
+                Windows.Perception.Spatial.SpatialCoordinateSystem sceneCoordinateSystem = Microsoft.Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(scene.OriginSpatialGraphNodeId);
+                HolograhicFrameData holoFrameData =  Marshal.PtrToStructure<HolograhicFrameData>(UnityEngine.XR.XRDevice.GetNativePtr());
+                Windows.Perception.Spatial.SpatialCoordinateSystem unityCoordinateSystem = Microsoft.Windows.Perception.Spatial.SpatialCoordinateSystem.FromNativePtr(holoFrameData.ISpatialCoordinateSystemPtr);
+
+                sceneToUnityTransform = sceneCoordinateSystem.TryGetTransformTo(unityCoordinateSystem);
+
+                if(sceneToUnityTransform != null)
+                {
+                    sceneToUnityTransform = ConvertRightHandedMatrix4x4ToLeftHanded(sceneToUnityTransform.Value);
+                }
+                else
+                {
+                    Debug.LogWarning("SceneUnderstandingManager.GetSceneToUnityTransform: Scene to Unity transform is null.");
+                }
+            }
+
+            return sceneToUnityTransform.Value;
+        }
+
+        private System.Numerics.Matrix4x4 ConvertRightHandedMatrix4x4ToLeftHanded(System.Numerics.Matrix4x4 matrix)
+        {
+            matrix.M13 = -matrix.M13;
+            matrix.M23 = -matrix.M23;
+            matrix.M43 = -matrix.M43;
+
+            matrix.M31 = -matrix.M31;
+            matrix.M32 = -matrix.M32;
+            matrix.M34 = -matrix.M34;
+
+            return matrix;
+        }
+
+        private void SetUnityTransformFromMatrix4x4(Transform targetTransform, System.Numerics.Matrix4x4 matrix, bool updateLocalTransformOnly = false)
+        {
+            if(targetTransform == null)
+            {
+                Debug.LogWarning("SceneUnderstandingManager.SetUnityTransformFromMatrix4x4: Unity transform is null.");
+                return;
+            }
+
+            Vector3 unityTranslation;
+            Quaternion unityQuat;
+            Vector3 unityScale;
+
+            System.Numerics.Vector3 vector3;
+            System.Numerics.Quaternion quaternion;
+            System.Numerics.Vector3 scale;
+
+            System.Numerics.Matrix4x4.Decompose(matrix, out scale, out quaternion, out vector3);
+
+            unityTranslation = new Vector3(vector3.X, vector3.Y, vector3.Z);
+            unityQuat = new Quaternion(quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
+            unityScale = new Vector3(scale.X, scale.Y, scale.Z);
+
+            if(updateLocalTransformOnly)
+            {
+                targetTransform.localPosition = unityTranslation;
+                targetTransform.localRotation = unityQuat;
+            }
+            else
+            {
+                targetTransform.SetPositionAndRotation(unityTranslation, unityQuat);
+            }
+        }
+
+        private void OrientSceneForPC(GameObject sceneRoot, SceneUnderstanding.Scene suScene)
+        {
+            if(suScene == null)
+            {
+                Debug.Log("SceneUnderstandingManager.OrientSceneForPC: Scene Understanding Scene Data is null.");
+            }
+
+            IEnumerable<SceneUnderstanding.SceneObject> sceneObjects = suScene.SceneObjects;
+            
+            float largestFloorAreaFound = 0.0f;
+            SceneUnderstanding.SceneObject suLargestFloorObj = null;
+            SceneUnderstanding.SceneQuad suLargestFloorQuad = null;
+            foreach(SceneUnderstanding.SceneObject sceneObj in sceneObjects)
+            {
+                if(sceneObj.Kind == SceneUnderstanding.SceneObjectKind.Floor)
+                {
+                    IEnumerable<SceneUnderstanding.SceneQuad> quads = sceneObj.Quads;
+
+                    if(quads != null)
+                    {
+                        foreach(SceneUnderstanding.SceneQuad quad in quads)
+                        {
+                            float quadArea = quad.Extents.X * quad.Extents.Y;
+
+                            if(quadArea > largestFloorAreaFound)
+                            {
+                                largestFloorAreaFound = quadArea;
+                                suLargestFloorObj = sceneObj;
+                                suLargestFloorQuad = quad;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(suLargestFloorQuad != null)
+            {
+                float quadWith = suLargestFloorQuad.Extents.X;
+                float quadHeight = suLargestFloorQuad.Extents.Y;
+
+                System.Numerics.Vector3 p1 = new System.Numerics.Vector3(-quadWith / 2, -quadHeight / 2, 0);
+                System.Numerics.Vector3 p2 = new System.Numerics.Vector3( quadWith / 2, -quadHeight / 2, 0);
+                System.Numerics.Vector3 p3 = new System.Numerics.Vector3(-quadWith / 2,  quadHeight / 2, 0);
+
+                System.Numerics.Matrix4x4 floorTransform = suLargestFloorObj.GetLocationAsMatrix();
+                floorTransform = TransformUtils.ConvertRightHandedMatrix4x4ToLeftHanded(floorTransform);
+
+                System.Numerics.Vector3 tp1 = System.Numerics.Vector3.Transform(p1, floorTransform);
+                System.Numerics.Vector3 tp2 = System.Numerics.Vector3.Transform(p2, floorTransform);
+                System.Numerics.Vector3 tp3 = System.Numerics.Vector3.Transform(p3, floorTransform);
+
+                System.Numerics.Vector3 p21 = tp2 - tp1;
+                System.Numerics.Vector3 p31 = tp3 - tp1;
+
+                System.Numerics.Vector3 floorNormal = System.Numerics.Vector3.Cross(p31, p21);
+
+                Vector3 floorNormalUnity = new Vector3(floorNormal.X, floorNormal.Y, floorNormal.Z);
+
+                Quaternion rotation = Quaternion.FromToRotation(floorNormalUnity, Vector3.up);
+                SceneRoot.transform.rotation = rotation;
+            }
+        }
+
+        #endregion
+
+        #region Out of PlayMode Functions
+
         public void BakeScene()
         {
             Debug.Log("[IN EDITOR] SceneUnderStandingManager.BakeScene: Bake Started");
@@ -947,6 +963,56 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 Debug.Log("[IN EDITOR] SceneUnderStandingManager.BakeScene: Display Completed");
             }
         }
+
+        #endregion
+
+        #region Save To Disk Functions
+
+        public void SaveBytesToDisk()
+        {
+            DateTime currentDate = DateTime.Now;
+            int year = currentDate.Year;
+            int month = currentDate.Month;
+            int day = currentDate.Day;
+            int hour = currentDate.Hour;
+            int min = currentDate.Minute;
+            int sec = currentDate.Second;
+
+            if(RunOnDevice)
+            {
+                string fileName = string.Format("SU_{0}-{1}-{2}_{3}-{4}-{5}.bytes",
+                year, month, day, hour, min, sec);
+
+                byte[] OnDeviceBytes = GetLatestSUScene();
+
+                #if WINDOWS_UWP
+                    var folder = WindowsStorage.ApplicationData.Current.LocalFolder;
+                    var file = await folder.CreateFileAsync(fileName, WindowsStorage.CreationCollisionOption.GenerateUniqueName);
+                    await WindowsStorage.FileIO.WriteBytesAsync(file, OnDeviceBytes);
+                #else
+                    Debug.Log("Save on Device is only supported in Universal Windows Applications");
+                #endif
+            }
+            else
+            {
+                int fragmentNumber = 0;
+                foreach(TextAsset serializedScene in SUSerializedScenePaths)
+                {
+                    byte[] fragmentBytes = serializedScene.bytes;
+                    
+                    string fileName = string.Format("SU_Frag{0}-{1}-{2}-{3}_{4}-{5}-{6}.bytes",
+                    fragmentNumber++, year, month, day, hour, min, sec);
+
+                    string folder = Path.GetTempPath();
+                    string file = Path.Combine(folder, fileName);
+                    File.WriteAllBytes(file, fragmentBytes);
+                    Debug.Log("SceneUnderstandingManager.SaveBytesToDisk: Scene Fragment saved at " + file);
+                }
+
+            }
+        }
+
+        #endregion
 
     }
 }

@@ -196,7 +196,7 @@
 
             speechCommands.Add("save data", new InvokeCommand( () => 
             {
-                SuManager.StartDisplay();
+                SuManager.SaveBytesToDisk();
             }));
 
             speechCommands.Add("help off", new InvokeCommand( () => 
@@ -406,6 +406,10 @@
                     }
                 }
             }
+            else if(Input.GetKeyDown(KeyCode.Alpha0))
+            {
+                SuManager.SaveBytesToDisk();
+            }
             else if(Input.GetKeyDown(KeyCode.H))
             {
                 InvokeCommand cmdOn = speechCommands["help on"];
@@ -426,8 +430,6 @@
                     }
                 }
             }
-
         }
-
     }
 }

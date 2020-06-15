@@ -237,7 +237,7 @@ Transform:
   m_Children:
   - {fileID: 2020803589}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &201092235
 MonoBehaviour:
@@ -363,36 +363,6 @@ MonoBehaviour:
   TranslationSpeed: 0.5
   TranslationShiftMultiplier: 2
   RotationSpeed: 5
---- !u!1 &458952236
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 458952237}
-  m_Layer: 0
-  m_Name: InputManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &458952237
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 458952236}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.0835047, y: -2.0577033, z: 1.2572803}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &630412906
 GameObject:
   m_ObjectHideFlags: 0
@@ -438,9 +408,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RunOnDevice: 0
   SUSerializedScenePaths:
-  - {fileID: 4900000, guid: a3ac62f334ff6c64687a97120f334411, type: 3}
-  - {fileID: 4900000, guid: 31c46d5a8f93ad24394c07b103a843ec, type: 3}
-  - {fileID: 4900000, guid: a1d8199470e629141bb734edffdcc38c, type: 3}
+  - {fileID: 4900000, guid: 82ce9e90cb0010645b80557a1d4a4263, type: 3}
   SceneRoot: {fileID: 0}
   BoundingSphereRadiusInMeters: 10
   AutoRefresh: 1

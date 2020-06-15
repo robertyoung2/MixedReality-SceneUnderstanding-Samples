@@ -105,25 +105,28 @@
 
             GUILayout.Label("Render Filters", EditorStyles.boldLabel);
             GUIContent RenderSceneObjectsContent = new GUIContent("Render Scene Objects" , "Toggles display of all scene objects, except for the world mesh.");
-            SUManager.RenderSceneObjects = EditorGUILayout.Toggle(RenderSceneObjectsContent,SUManager.RenderSceneObjects);
+            SUManager.RenderSceneObjects = EditorGUILayout.Toggle(RenderSceneObjectsContent, SUManager.RenderSceneObjects);
 
             GUIContent DisplayTextLabelsContent = new GUIContent("Display Text Labels" , "Display text labels for the scene objects.");
-            SUManager.DisplayTextLabels = EditorGUILayout.Toggle(DisplayTextLabelsContent,SUManager.DisplayTextLabels);
+            SUManager.DisplayTextLabels = EditorGUILayout.Toggle(DisplayTextLabelsContent, SUManager.DisplayTextLabels);
 
             GUIContent RenderPlatformsObjectsContent = new GUIContent("Render Platforms Objects" , "Toggles display of large, horizontal scene objects, aka 'Platform'.");
-            SUManager.RenderPlatformSceneObjects = EditorGUILayout.Toggle(RenderPlatformsObjectsContent,SUManager.RenderPlatformSceneObjects);
+            SUManager.RenderPlatformSceneObjects = EditorGUILayout.Toggle(RenderPlatformsObjectsContent, SUManager.RenderPlatformSceneObjects);
 
             GUIContent RenderBackgroundObjectsContent = new GUIContent("Render Background Objects" , "Toggles the display of background scene objects.");
-            SUManager.RenderBackgroundSceneObjects = EditorGUILayout.Toggle(RenderBackgroundObjectsContent,SUManager.RenderBackgroundSceneObjects);
+            SUManager.RenderBackgroundSceneObjects = EditorGUILayout.Toggle(RenderBackgroundObjectsContent, SUManager.RenderBackgroundSceneObjects);
 
             GUIContent RenderUnknownObjectsContent = new GUIContent("Render Unknown Objects" , "Toggles the display of unknown scene objects.");
-            SUManager.RenderUnknownSceneObjects = EditorGUILayout.Toggle(RenderUnknownObjectsContent,SUManager.RenderUnknownSceneObjects);
+            SUManager.RenderUnknownSceneObjects = EditorGUILayout.Toggle(RenderUnknownObjectsContent, SUManager.RenderUnknownSceneObjects);
 
             GUIContent RenderWorldMeshContent = new GUIContent("Render World Mesh" , "Toggles the display of the world mesh.");
-            SUManager.RenderWorldMesh = EditorGUILayout.Toggle(RenderWorldMeshContent,SUManager.RenderWorldMesh);
+            SUManager.RenderWorldMesh = EditorGUILayout.Toggle(RenderWorldMeshContent, SUManager.RenderWorldMesh);
+
+            GUIContent RenderTextLabelsContent = new GUIContent("Render Text Labels", "Display text labels for the scene objects.");
+            SUManager.DisplayTextLabels = EditorGUILayout.Toggle(RenderTextLabelsContent, SUManager.DisplayTextLabels);
 
             GUIContent RequestInferredRegionsContent = new GUIContent("Request Inferred Regions" , "When enabled, requests observed and inferred regions for scene objects. When disabled, requests only the observed regions for scene objects.");
-            SUManager.RequestInferredRegions = EditorGUILayout.Toggle(RequestInferredRegionsContent,SUManager.RequestInferredRegions);
+            SUManager.RequestInferredRegions = EditorGUILayout.Toggle(RequestInferredRegionsContent, SUManager.RequestInferredRegions);
 
             if(SUManager.RequestInferredRegions)
             {
