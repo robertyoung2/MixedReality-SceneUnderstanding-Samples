@@ -63,6 +63,22 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         public RenderMode SceneObjectRenderMode = RenderMode.Mesh;
         [Tooltip("Level Of Detail for the scene objects.")]
         public SceneUnderstanding.SceneMeshLevelOfDetail RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Medium;
+
+        [Header("Render Colors")]
+        [Tooltip("Colors for the Scene Understanding Background objects")]
+        public Color ColorForBackgroundObjs = new Color(0.953f, 0.475f, 0.875f, 1.0f);
+        [Tooltip("Colors for the Scene Understanding Wall objects")]
+        public Color ColorForWallObjs = new Color(0.953f, 0.494f, 0.475f, 1.0f);
+        [Tooltip("Colors for the Scene Understanding Floor objects")]
+        public Color ColorForFloorObjs = new Color(0.733f, 0.953f, 0.475f, 1.0f);
+        [Tooltip("Colors for the Scene Understanding Ceiling objects")]
+        public Color ColorForCeilingObjs = new Color(0.475f, 0.596f, 0.953f, 1.0f);
+        [Tooltip("Colors for the Scene Understanding Plataform objects")]
+        public Color ColorForPlatformsObjs = new Color(0.204f, 0.792f, 0.714f, 1.0f);
+        [Tooltip("Colors for the Scene Understanding Unknown objects")]
+        public Color ColorForUnknownObjs = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        [Tooltip("Colors for the Scene Understanding Inferred objects")]
+        public Color ColorForInferredObjs = new Color(0.5f, 0.5f, 0.5f, 1.0f);
         
         [Header("Materials")]
         [Tooltip("Material for scene object meshes.")]
@@ -89,6 +105,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         public bool RequestInferredRegions = true;
         [Tooltip("Toggles the display of completely inferred scene objects.")]
         public bool RenderCompletelyInferredSceneObjects = true;
+
+        [Header("Physics")]
+        [Tooltip("Toggles the creation of objects with collider components")]
+        public bool AddColliders = false;
 
         #endregion
 
@@ -464,25 +484,25 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             switch(suObj.Kind)
             {
                 case SceneUnderstanding.SceneObjectKind.Background:
-                    color = new Color(0.953f, 0.475f, 0.875f, 1.0f);    // Pink'ish
+                    color = ColorForBackgroundObjs;  // Pink'ish
                     break;
                 case SceneUnderstanding.SceneObjectKind.Wall:
-                    color = new Color(0.953f, 0.494f, 0.475f, 1.0f);    // Orange'ish
+                    color = ColorForWallObjs;       // Orange'ish
                     break;
                 case SceneUnderstanding.SceneObjectKind.Floor:
-                    color = new Color(0.733f, 0.953f, 0.475f, 1.0f);    // Green'ish
+                    color = ColorForFloorObjs;      // Green'ish
                     break;
                 case SceneUnderstanding.SceneObjectKind.Ceiling:
-                    color = new Color(0.475f, 0.596f, 0.953f, 1.0f);    // Purple'ish
+                    color = ColorForCeilingObjs;   // Purple'ish
                     break;
                 case SceneUnderstanding.SceneObjectKind.Platform:
-                    color = new Color(0.204f, 0.792f, 0.714f, 1.0f);    // Blue'ish
+                    color = ColorForPlatformsObjs; // Blue'ish
                     break;
                 case SceneUnderstanding.SceneObjectKind.Unknown:
-                    color = new Color(1.0f, 1.0f, 1.0f, 1.0f);          // White
+                    color = ColorForUnknownObjs;  // White
                     break;       
                 case SceneUnderstanding.SceneObjectKind.CompletelyInferred:
-                    color = new Color(0.5f, 0.5f, 0.5f, 1.0f);          // Gray
+                    color = ColorForInferredObjs;  // Gray
                     break;
             }
 
@@ -510,8 +530,12 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     {
                         ApplyQuadRegionMask(quad, gameObjToReturn, color.Value);
                     }
-
-                    gameObjToReturn.AddComponent<BoxCollider>();
+                    
+                    if(AddColliders)
+                    {
+                        gameObjToReturn.AddComponent<BoxCollider>();
+                    }
+                    
                     listOfGeometryGameObjToReturn.Add(gameObjToReturn);
                 }
             }
@@ -537,12 +561,15 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     }
                     AddMeshToUnityObj(gameObjToReturn,unityMesh,color,tempMaterial);
 
-                    //Generate a unity mesh for physics
-                    Mesh unityColliderMesh = GenerateUnityMeshFromSceneObjMeshes(new List<SceneUnderstanding.SceneMesh> {SUGeometryMesh});
+                    if(AddColliders)
+                    {
+                        //Generate a unity mesh for physics
+                        Mesh unityColliderMesh = GenerateUnityMeshFromSceneObjMeshes(new List<SceneUnderstanding.SceneMesh> {SUGeometryMesh});
 
-                    MeshCollider col = gameObjToReturn.AddComponent<MeshCollider>();
-                    col.sharedMesh = unityColliderMesh;
-
+                        MeshCollider col = gameObjToReturn.AddComponent<MeshCollider>();
+                        col.sharedMesh = unityColliderMesh;
+                    }
+                    
                     listOfGeometryGameObjToReturn.Add(gameObjToReturn);
                 }
             }
@@ -737,7 +764,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             textGO.transform.localRotation = Quaternion.identity;
 
             // Add a text mesh component.
-            TextMesh textMesh = textGO.AddComponent<TextMesh>() /*as TextMesh*/;
+            TextMesh textMesh = textGO.AddComponent<TextMesh>();
             textMesh.characterSize = 0.4f;
             textMesh.text = label;
             textMesh.anchor = TextAnchor.MiddleCenter;
@@ -746,9 +773,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             // Add a mesh renderer
             MeshRenderer renderer = textGO.GetComponent<MeshRenderer>();
             renderer.sharedMaterial.color = new Color(0, 1.0f, 1.0f);
-            // Render on top of everything else.
-            renderer.sharedMaterial.renderQueue = 3000;
-
+            
             // Add the billboard script.
             textGO.AddComponent<Billboard>();
         }
