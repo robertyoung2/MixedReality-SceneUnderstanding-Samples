@@ -49,7 +49,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         /// <param name="serializedScene">Serialized scene.</param>
         /// <param name="fileName">Name for the file that will be saved to disk.</param>
         /// <returns>Task.</returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public static async Task SaveBytesToDiskAsync(byte[] serializedScene, string fileName = null)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             if (serializedScene == null)
             {
@@ -62,16 +64,16 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 fileName = GetDefaultFileName() + ".bytes";
             }
 
-#if WINDOWS_UWP
+            #if WINDOWS_UWP
             var folder = WindowsStorage.ApplicationData.Current.LocalFolder;
             var file = await folder.CreateFileAsync(fileName, WindowsStorage.CreationCollisionOption.GenerateUniqueName);
             await WindowsStorage.FileIO.WriteBytesAsync(file, serializedScene);
-#else
+            #else
             var folder = Path.GetTempPath();
             var file = Path.Combine(folder, fileName);
             File.WriteAllBytes(file, serializedScene);
             Logger.Log(string.Format("SceneUnderstandingSaveDataUtils.SaveBytesToDiskAsync: Bytes saved to: {0}", file));
-#endif
+            #endif
         }
 
         /// <summary>
@@ -80,7 +82,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         /// <param name="serializedScene">Serialized scene.</param>
         /// <returns>Task.</returns>
         public static async Task SaveObjsToDiskAsync(byte[] serializedScene)
-        {   
+        {
             if (serializedScene == null)
             {
                 Logger.LogWarning("SceneUnderstandingSaveDataUtils.SaveObjsToDisk: Nothing to save.");
@@ -89,17 +91,17 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
             // Deserialize the scene.
             SceneUnderstanding.Scene scene = SceneUnderstanding.Scene.Deserialize(serializedScene);
-            
+
             // List of all SceneObjectKind enum values.
             List<SceneUnderstanding.SceneObjectKind> sceneObjectKinds = Enum.GetValues(typeof(SceneUnderstanding.SceneObjectKind)).Cast<SceneUnderstanding.SceneObjectKind>().ToList();
-        
+
             List<Task> tasks = new List<Task>();
             foreach (SceneUnderstanding.SceneObjectKind soKind in sceneObjectKinds)
             {
                 tasks.Add(SaveSceneObjectsAsObjAsync(
-                    scene.SceneObjects.Where<SceneUnderstanding.SceneObject>(so => so.Kind == soKind),
-                    SceneUnderstandingUtils.GetColorForLabel(soKind) == null ? Color.black : SceneUnderstandingUtils.GetColorForLabel(soKind).Value,
-                    string.Format("{0}_{1}", GetDefaultFileName(), soKind.ToString())));
+                              scene.SceneObjects.Where<SceneUnderstanding.SceneObject>(so => so.Kind == soKind),
+                              SceneUnderstandingUtils.GetColorForLabel(soKind) == null ? Color.black : SceneUnderstandingUtils.GetColorForLabel(soKind).Value,
+                              string.Format("{0}_{1}", GetDefaultFileName(), soKind.ToString())));
             }
             await Task.WhenAll(tasks);
         }
@@ -118,10 +120,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 Logger.LogWarning("SceneUnderstandingSaveDataUtils.SaveSceneObjectsAsObj: No scene objects to save.");
                 return;
             }
-            
+
             List<System.Numerics.Vector3> combinedMeshVertices = new List<System.Numerics.Vector3>();
             List<uint> combinedMeshIndices = new List<uint>();
-            
+
             // Go through each scene object, retrieve its meshes and add them to the combined lists, defined above.
             foreach (SceneUnderstanding.SceneObject so in sceneObjects)
             {
@@ -135,7 +137,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 {
                     continue;
                 }
-                
+
                 foreach (SceneUnderstanding.SceneMesh mesh in meshes)
                 {
                     // Get the mesh vertices.
@@ -144,10 +146,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
                     // Transform the vertices using the transformation matrix.
                     TransformUtils.TransformVertices(so.GetLocationAsMatrix(), mvList);
-                    
+
                     // Store the current set of vertices in the combined list. As we add indices, we'll offset it by this value.
                     uint indexOffset = (uint)combinedMeshVertices.Count;
-                    
+
                     // Add the new set of mesh vertices to the existing set.
                     combinedMeshVertices.AddRange(mvList);
 
@@ -186,7 +188,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         /// <param name="str">String to save.</param>
         /// <param name="fileName">Name for the file that will be saved to disk.</param>
         /// <returns>Task.</returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private static async Task SaveStringToDiskAsync(string str, string fileName = null)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             if (string.IsNullOrEmpty(str))
             {
@@ -199,16 +203,16 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 fileName = GetDefaultFileName();
             }
 
-#if WINDOWS_UWP
+            #if WINDOWS_UWP
             var folder = WindowsStorage.ApplicationData.Current.LocalFolder;
             var file = await folder.CreateFileAsync(fileName, WindowsStorage.CreationCollisionOption.GenerateUniqueName);
             await WindowsStorage.FileIO.AppendTextAsync(file, str);
-#else
+            #else
             var folder = Path.GetTempPath();
             var file = Path.Combine(folder, fileName);
             File.WriteAllText(file, str);
             Logger.Log(string.Format("SceneUnderstandingSaveDataUtils.SaveStringToDiskAsync: String saved to: {0}", file));
-#endif
+            #endif
         }
     }
 }
