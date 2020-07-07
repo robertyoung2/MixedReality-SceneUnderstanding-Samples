@@ -27,7 +27,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             'platform on'/'platform off' - enable/disable large horizontal surfaces (aka platform)
             'background on'/'background off' - enable/disable background objects
             'unknown on'/'unknown off' - enable/disable unknown objects
-            'inference on'/'inference off' - enable/disable completely inferred objects
+            'inference on'/'inference off' - enable/disable completely inferred objects (requires refresh)
                     
             'world mesh on'/'world mesh off' - enable/disable world mesh
             'mesh coarse', 'mesh medium' or 'mesh fine' - change world mesh level of detail

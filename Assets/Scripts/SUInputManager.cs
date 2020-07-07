@@ -20,158 +20,158 @@
 
         void Start()
         {
-            speechCommands.Add("update", new InvokeCommand( () => 
+            speechCommands.Add("update", new InvokeCommand( () =>
             {
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("auto refresh off", new InvokeCommand( () => 
-            {             
+            speechCommands.Add("auto refresh off", new InvokeCommand( () =>
+            {
                 SuManager.AutoRefresh = false;
                 SuManager.timeElapsedSinceLastAutoRefresh = SuManager.AutoRefreshIntervalInSeconds;
             }));
 
-            speechCommands.Add("auto refresh on", new InvokeCommand( () => 
+            speechCommands.Add("auto refresh on", new InvokeCommand( () =>
             {
                 SuManager.AutoRefresh = true;
             }));
 
-            speechCommands.Add("increase radius", new InvokeCommand( () => 
+            speechCommands.Add("increase radius", new InvokeCommand( () =>
             {
                 float fTempFloat = SuManager.BoundingSphereRadiusInMeters + 5.0f;
                 fTempFloat = Mathf.Clamp(fTempFloat, 5.0f, 100.0f);
                 SuManager.BoundingSphereRadiusInMeters = fTempFloat;
             }));
 
-            speechCommands.Add("decrease radius", new InvokeCommand( () => 
+            speechCommands.Add("decrease radius", new InvokeCommand( () =>
             {
                 float fTempFloat = SuManager.BoundingSphereRadiusInMeters - 5.0f;
                 fTempFloat = Mathf.Clamp(fTempFloat, 5.0f, 100.0f);
                 SuManager.BoundingSphereRadiusInMeters = fTempFloat;
             }));
 
-            speechCommands.Add("scene objects off", new InvokeCommand( () => 
+            speechCommands.Add("scene objects off", new InvokeCommand( () =>
             {
                 SuManager.RenderSceneObjects = false;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("scene objects on", new InvokeCommand( () => 
+            speechCommands.Add("scene objects on", new InvokeCommand( () =>
             {
                 SuManager.RenderSceneObjects = true;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("scene objects quad", new InvokeCommand( () => 
+            speechCommands.Add("scene objects quad", new InvokeCommand( () =>
             {
                 SuManager.SceneObjectRenderMode = RenderMode.Quad;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("scene objects mask", new InvokeCommand( () => 
+            speechCommands.Add("scene objects mask", new InvokeCommand( () =>
             {
                 SuManager.SceneObjectRenderMode = RenderMode.QuadWithMask;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("scene objects mesh", new InvokeCommand( () => 
+            speechCommands.Add("scene objects mesh", new InvokeCommand( () =>
             {
                 SuManager.SceneObjectRenderMode = RenderMode.Mesh;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("scene objects wireframe", new InvokeCommand( () => 
+            speechCommands.Add("scene objects wireframe", new InvokeCommand( () =>
             {
                 SuManager.SceneObjectRenderMode = RenderMode.Wireframe;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("inference off", new InvokeCommand( () => 
+            speechCommands.Add("inference off", new InvokeCommand( () =>
             {
                 SuManager.RequestInferredRegions = false;
             }));
 
-            speechCommands.Add("inference on", new InvokeCommand( () => 
+            speechCommands.Add("inference on", new InvokeCommand( () =>
             {
                 SuManager.RequestInferredRegions = true;
             }));
 
-            speechCommands.Add("world mesh off", new InvokeCommand( () => 
+            speechCommands.Add("world mesh off", new InvokeCommand( () =>
             {
                 SuManager.RenderWorldMesh = false;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("world mesh on", new InvokeCommand( () => 
+            speechCommands.Add("world mesh on", new InvokeCommand( () =>
             {
                 SuManager.RenderWorldMesh = true;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("mesh coarse", new InvokeCommand( () => 
+            speechCommands.Add("mesh coarse", new InvokeCommand( () =>
             {
                 SuManager.RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Coarse;
             }));
 
-            speechCommands.Add("mesh medium", new InvokeCommand( () => 
+            speechCommands.Add("mesh medium", new InvokeCommand( () =>
             {
                 SuManager.RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Medium;
             }));
 
-            speechCommands.Add("mesh fine", new InvokeCommand( () => 
+            speechCommands.Add("mesh fine", new InvokeCommand( () =>
             {
                 SuManager.RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Fine;
             }));
 
-            speechCommands.Add("platform off", new InvokeCommand( () => 
+            speechCommands.Add("platform off", new InvokeCommand( () =>
             {
                 SuManager.RenderPlatformSceneObjects = false;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("platform on", new InvokeCommand( () => 
+            speechCommands.Add("platform on", new InvokeCommand( () =>
             {
                 SuManager.RenderPlatformSceneObjects = true;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("background off", new InvokeCommand( () => 
+            speechCommands.Add("background off", new InvokeCommand( () =>
             {
                 SuManager.RenderBackgroundSceneObjects = false;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("background on", new InvokeCommand( () => 
+            speechCommands.Add("background on", new InvokeCommand( () =>
             {
                 SuManager.RenderBackgroundSceneObjects = true;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("unknown off", new InvokeCommand( () => 
+            speechCommands.Add("unknown off", new InvokeCommand( () =>
             {
                 SuManager.RenderUnknownSceneObjects = false;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("unknown on", new InvokeCommand( () => 
+            speechCommands.Add("unknown on", new InvokeCommand( () =>
             {
                 SuManager.RenderUnknownSceneObjects = true;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("inferred off", new InvokeCommand( () => 
+            speechCommands.Add("inferred off", new InvokeCommand( () =>
             {
                 SuManager.RenderCompletelyInferredSceneObjects = false;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("inferred on", new InvokeCommand( () => 
+            speechCommands.Add("inferred on", new InvokeCommand( () =>
             {
                 SuManager.RenderCompletelyInferredSceneObjects = true;
                 SuManager.StartDisplay();
             }));
 
-            speechCommands.Add("minimap off", new InvokeCommand( () => 
+            speechCommands.Add("minimap off", new InvokeCommand( () =>
             {
                 if(SuMinimap != null)
                 {
@@ -181,7 +181,7 @@
                 SuManager.SceneRoot.SetActive(false);
             }));
 
-            speechCommands.Add("minimap on", new InvokeCommand( () => 
+            speechCommands.Add("minimap on", new InvokeCommand( () =>
             {
                 if(SuMinimap == null)
                 {
@@ -194,21 +194,21 @@
                 }
             }));
 
-            speechCommands.Add("save data", new InvokeCommand( () => 
+            speechCommands.Add("save data", new InvokeCommand( () =>
             {
-                SuManager.SaveBytesToDisk();
+                var t = SuManager.SaveBytesToDiskAsync();
             }));
 
-            speechCommands.Add("help off", new InvokeCommand( () => 
+            speechCommands.Add("help off", new InvokeCommand( () =>
             {
                 if(suMenu != null)
                 {
                     suMenu.Hide();
                 }
-                
+
             }));
 
-            speechCommands.Add("help on", new InvokeCommand( () => 
+            speechCommands.Add("help on", new InvokeCommand( () =>
             {
                 if(suMenu != null)
                 {
@@ -217,10 +217,10 @@
             }));
 
             List<string> keywordsList = new List<string>();
-            
+
             foreach(KeyValuePair<string,InvokeCommand> command in speechCommands)
             {
-               keywordsList.Add(command.Key);
+                keywordsList.Add(command.Key);
             }
 
             keywordRecognizer = new KeywordRecognizer(keywordsList.ToArray());
@@ -257,7 +257,7 @@
             if(SuManager.RunOnDevice)
             {
                 return;
-            }   
+            }
 
             if(Input.GetKeyDown(KeyCode.Alpha1))
             {
@@ -408,13 +408,13 @@
             }
             else if(Input.GetKeyDown(KeyCode.Alpha0))
             {
-                SuManager.SaveBytesToDisk();
+                var t = SuManager.SaveBytesToDiskAsync();
             }
             else if(Input.GetKeyDown(KeyCode.H))
             {
                 InvokeCommand cmdOn = speechCommands["help on"];
                 InvokeCommand cmdOff = speechCommands["help off"];
-                
+
                 if(suMenu.GetComponent<MeshRenderer>().enabled)
                 {
                     if(cmdOff != null)

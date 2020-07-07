@@ -7,10 +7,11 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
     using System.Threading.Tasks;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
+    using TMPro;
     using UnityEngine;
 
     #if WINDOWS_UWP
-    using WindowsStorage = Windows.Storage;
+    using WindowsStorage = global::Windows.Storage;
     #endif
 
     /// <summary>
@@ -79,7 +80,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         public Color ColorForUnknownObjs = new Color(1.0f, 1.0f, 1.0f, 1.0f);
         [Tooltip("Colors for the Scene Understanding Inferred objects")]
         public Color ColorForInferredObjs = new Color(0.5f, 0.5f, 0.5f, 1.0f);
-        
+        [Tooltip("Colors for the World mesh")]
+        public Color ColorForWorldObjs = new Color(0.0f, 1.0f, 1.0f, 1.0f);
+
         [Header("Materials")]
         [Tooltip("Material for scene object meshes.")]
         public Material SceneObjectMeshMaterial = null;
@@ -452,7 +455,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                    kind == SceneUnderstanding.SceneObjectKind.Wall     ||
                    kind == SceneUnderstanding.SceneObjectKind.Floor    ||
                    kind == SceneUnderstanding.SceneObjectKind.Ceiling  ||
-                   kind == SceneUnderstanding.SceneObjectKind.Platform
+                    kind == SceneUnderstanding.SceneObjectKind.Platform ||
+                    kind == SceneUnderstanding.SceneObjectKind.Background ||
+                    kind == SceneUnderstanding.SceneObjectKind.Unknown
                   )
                 {
                     AddLabel(unityParentHolderObj, kind.ToString());
@@ -473,38 +478,14 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             Mesh unityMesh = GenerateUnityMeshFromSceneObjMeshes(suMeshes);
             
             GameObject gameObjToReturn = new GameObject(suObj.Kind.ToString());
-            AddMeshToUnityObj(gameObjToReturn, unityMesh, null, SceneObjectWireframeMaterial);
+            AddMeshToUnityObj(gameObjToReturn, unityMesh, ColorForWorldObjs, SceneObjectWireframeMaterial);
 
             return new List<GameObject> {gameObjToReturn};
         }
 
         private List<GameObject> CreateSUObjectInUnity(SceneUnderstanding.SceneObject suObj)
         {
-            Color? color = null;
-            switch(suObj.Kind)
-            {
-                case SceneUnderstanding.SceneObjectKind.Background:
-                    color = ColorForBackgroundObjs;  // Pink'ish
-                    break;
-                case SceneUnderstanding.SceneObjectKind.Wall:
-                    color = ColorForWallObjs;       // Orange'ish
-                    break;
-                case SceneUnderstanding.SceneObjectKind.Floor:
-                    color = ColorForFloorObjs;      // Green'ish
-                    break;
-                case SceneUnderstanding.SceneObjectKind.Ceiling:
-                    color = ColorForCeilingObjs;   // Purple'ish
-                    break;
-                case SceneUnderstanding.SceneObjectKind.Platform:
-                    color = ColorForPlatformsObjs; // Blue'ish
-                    break;
-                case SceneUnderstanding.SceneObjectKind.Unknown:
-                    color = ColorForUnknownObjs;  // White
-                    break;       
-                case SceneUnderstanding.SceneObjectKind.CompletelyInferred:
-                    color = ColorForInferredObjs;  // Gray
-                    break;
-            }
+            Color? color = GetColor(suObj.Kind);
 
             List<GameObject> listOfGeometryGameObjToReturn = new List<GameObject>();
             if(SceneObjectRenderMode == RenderMode.Quad || SceneObjectRenderMode == RenderMode.QuadWithMask)
@@ -672,8 +653,33 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             unityMesh.SetVertices(vertices);
             unityMesh.SetIndices(triangles.ToArray(), MeshTopology.Triangles, 0);
             unityMesh.SetUVs(0, uvs);
-        
+
             return unityMesh;
+        }
+
+        private Color? GetColor(SceneObjectKind kind)
+        {
+            switch (kind)
+            {
+                case SceneUnderstanding.SceneObjectKind.Background:
+                    return ColorForBackgroundObjs;  // Pink'ish
+                case SceneUnderstanding.SceneObjectKind.Wall:
+                    return ColorForWallObjs;       // Orange'ish
+                case SceneUnderstanding.SceneObjectKind.Floor:
+                    return ColorForFloorObjs;      // Green'ish
+                case SceneUnderstanding.SceneObjectKind.Ceiling:
+                    return ColorForCeilingObjs;   // Purple'ish
+                case SceneUnderstanding.SceneObjectKind.Platform:
+                    return ColorForPlatformsObjs; // Blue'ish
+                case SceneUnderstanding.SceneObjectKind.Unknown:
+                    return ColorForUnknownObjs;  // White
+                case SceneUnderstanding.SceneObjectKind.CompletelyInferred:
+                    return ColorForInferredObjs;  // Gray
+                case SceneUnderstanding.SceneObjectKind.World:
+                    return ColorForWorldObjs;  // Gray
+                default:
+                    return null;
+            }
         }
 
         private void AddMeshToUnityObj(GameObject unityObj, Mesh mesh, Color? color, Material material)
@@ -690,6 +696,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             if(color != null)
             {
                 tempMaterial.color = color.Value;
+                tempMaterial.SetColor("_WireColor", color.Value);
             }
 
             MeshRenderer mr = unityObj.AddComponent<MeshRenderer>();
@@ -755,27 +762,28 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 return;
             }
 
-            Font labelFont = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
-
+            // Create the parent container and give it a name
             GameObject textGO = new GameObject("Label");
-            textGO.transform.parent = obj.transform;
-            textGO.transform.localScale = new Vector3(0.24f, 0.24f, 0.24f);
-            textGO.transform.localPosition = Vector3.zero;
-            textGO.transform.localRotation = Quaternion.identity;
 
-            // Add a text mesh component.
-            TextMesh textMesh = textGO.AddComponent<TextMesh>();
-            textMesh.characterSize = 0.4f;
-            textMesh.text = label;
-            textMesh.anchor = TextAnchor.MiddleCenter;
-            textMesh.font = labelFont;
+            // Set it as a child of the game object
+            textGO.transform.SetParent(obj.transform, worldPositionStays: false);
 
-            // Add a mesh renderer
-            MeshRenderer renderer = textGO.GetComponent<MeshRenderer>();
-            renderer.sharedMaterial.color = new Color(0, 1.0f, 1.0f);
+            // Move it slightly in front of the game object
+            textGO.transform.Translate(0, 0, -0.003f);
+
+            // Create a TextMeshPro object for our text
+            TextMeshPro tmpro = textGO.AddComponent<TextMeshPro>();
+
+            // Align middle, center
+            tmpro.alignment = TextAlignmentOptions.Center;
+
+            // This width, height and scale seems to be about right for HoloLens
+            tmpro.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 20f);
+            tmpro.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 6f);
+            tmpro.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
             
-            // Add the billboard script.
-            textGO.AddComponent<Billboard>();
+            // And finally assign the label text
+            tmpro.text = label;
         }
 
         #endregion
@@ -993,7 +1001,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         #region Save To Disk Functions
 
-        public void SaveBytesToDisk()
+        // Await is conditionally compiled out based on platform but needs to be awaitable
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task SaveBytesToDiskAsync()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             DateTime currentDate = DateTime.Now;
             int year = currentDate.Year;
