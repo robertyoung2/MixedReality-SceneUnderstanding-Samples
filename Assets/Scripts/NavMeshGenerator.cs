@@ -7,6 +7,8 @@ public class NavMeshGenerator : MonoBehaviour
     public GameObject SceneRoot;
     public GameObject navMeshAgentRef;
 
+    private GameObject navMeshAgentInstance;
+
     public void BakeMesh()
     {
         UpdateNavMeshSettingsForObjsUnderRoot();
@@ -21,7 +23,10 @@ public class NavMeshGenerator : MonoBehaviour
             return;
         }
         
-        GameObject NavMeshAgentInstance = Instantiate<GameObject>(navMeshAgentRef, new Vector3(0.0f,-0.5f,-3.0f), Quaternion.identity);
+        if(navMeshAgentInstance == null)
+        {
+            navMeshAgentInstance = Instantiate<GameObject>(navMeshAgentRef, new Vector3(0.0f,-0.5f,-3.0f), Quaternion.identity);
+        }
     }
 
     void UpdateNavMeshSettingsForObjsUnderRoot ()
