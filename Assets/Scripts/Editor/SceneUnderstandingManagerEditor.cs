@@ -30,7 +30,7 @@
         SerializedProperty serializedRenderColorUnknown;
         SerializedProperty serializedRenderColorCompletelyInferred;
         SerializedProperty serializedRenderColorWorld;
-
+        SerializedProperty serializedOnLoadCallback;
 
         private void OnEnable()
         {
@@ -58,6 +58,7 @@
             serializedRenderColorUnknown = serializedObject.FindProperty("ColorForUnknownObjs");
             serializedRenderColorCompletelyInferred = serializedObject.FindProperty("ColorForInferredObjs");
             serializedRenderColorWorld = serializedObject.FindProperty("ColorForWorldObjs");
+            serializedOnLoadCallback = serializedObject.FindProperty("OnLoad");
         }
 
         public override void OnInspectorGUI()
@@ -164,6 +165,9 @@
             GUILayout.Label("Physics", EditorStyles.boldLabel);
             GUIContent AddCollidersContent = new GUIContent("Add Colliders", "Toggles the creation of objects with collider components.");
             SUManager.AddColliders = EditorGUILayout.Toggle(AddCollidersContent, SUManager.AddColliders);
+            GUILayout.Space(4.0f);
+
+            EditorGUILayout.PropertyField(serializedOnLoadCallback);
             GUILayout.Space(4.0f);
 
             if(!SUManager.RunOnDevice)

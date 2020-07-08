@@ -1,14 +1,20 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 {
+    //System
     using System;
     using System.IO;
     using System.Collections;
     using System.Threading.Tasks;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
+
+    //TextMeshPro
     using TMPro;
+
+    //Unity
     using UnityEngine;
+    using UnityEngine.Events;
 
     #if WINDOWS_UWP
     using WindowsStorage = global::Windows.Storage;
@@ -112,6 +118,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Header("Physics")]
         [Tooltip("Toggles the creation of objects with collider components")]
         public bool AddColliders = false;
+
+        [Header("Callbacks")]
+        [Tooltip("User function that get called when a Scene Understanding event happens")]
+        public UnityEvent OnLoad;
 
         #endregion
 
@@ -385,6 +395,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             isDisplayInProgress = false;
 
             Debug.Log("SceneUnderStandingManager.DisplayData: Display Completed");
+
+            //On Load Callbacks
+            OnLoad.Invoke();
         }
 
         private bool DisplaySceneObject(SceneUnderstanding.SceneObject suObj)

@@ -111,7 +111,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     }
 
                     // Then, spin off a background thread to continually retrieve SU data.
+                    #pragma warning disable CS4014
                     Task.Run(() => RetrieveDataContinuously());
+                    #pragma warning restore CS4014
                 }
                 else
                 {
