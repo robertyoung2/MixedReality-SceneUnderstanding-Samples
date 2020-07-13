@@ -41,7 +41,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             // Set the build player options.
             BuildPipeline.BuildPlayer(buildPlayerOptions);
 
-            Logger.Log("Build completed.");
+            //Debug.Log("Build completed.");
         }
     }
 }

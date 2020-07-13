@@ -46,14 +46,12 @@ MonoBehaviour:
   RunOnDevice: 0
   SUSerializedScenePaths:
   - {fileID: 4900000, guid: 82ce9e90cb0010645b80557a1d4a4263, type: 3}
-  - {fileID: 0}
-  - {fileID: 0}
   SceneRoot: {fileID: 0}
   BoundingSphereRadiusInMeters: 10
   AutoRefresh: 1
   AutoRefreshIntervalInSeconds: 10
   SceneObjectRenderMode: 2
-  RenderQuality: 0
+  RenderQuality: 1
   ColorForBackgroundObjs: {r: 0.953, g: 0.475, b: 0.875, a: 1}
   ColorForWallObjs: {r: 0.953, g: 0.494, b: 0.475, a: 1}
   ColorForFloorObjs: {r: 0.733, g: 0.953, b: 0.475, a: 1}
@@ -72,11 +70,11 @@ MonoBehaviour:
   DisplayTextLabels: 1
   RenderPlatformSceneObjects: 1
   RenderBackgroundSceneObjects: 1
-  RenderUnknownSceneObjects: 0
+  RenderUnknownSceneObjects: 1
   RenderWorldMesh: 0
   RequestInferredRegions: 1
   RenderCompletelyInferredSceneObjects: 1
-  AddColliders: 1
+  AddColliders: 0
   OnLoad:
     m_PersistentCalls:
       m_Calls: []

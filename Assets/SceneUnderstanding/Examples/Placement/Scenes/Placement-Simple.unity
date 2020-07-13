@@ -347,6 +347,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: SceneObjectMeshMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 0746671642388094aa5fc149eb6c23be, type: 2}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: SceneObjectQuadMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: b965b90bb115d7e4cad26c038848258f, type: 2}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: SceneObjectWireframeMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 86ec9582d8dcbc34bac58ae621e24af9, type: 2}
     - target: {fileID: 1654952326856315524, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
       propertyPath: m_Name
@@ -450,7 +465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8812cb97711629a41a55db949b1c2ad2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objToPlaceRef: {fileID: 8623901378740250549, guid: e1e2b2132ec7637458529cbd17118ecf,
+  objToPlaceRef: {fileID: 3358168481066435975, guid: d89b730c479f1c949afd1ce9cc414077,
     type: 3}
   material: {fileID: 2100000, guid: 0746671642388094aa5fc149eb6c23be, type: 2}
 --- !u!4 &1460691995

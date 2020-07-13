@@ -157,7 +157,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
                 if (!SceneUnderstanding.SceneObserver.IsSupported())
                 {
-                    Logger.LogError("SceneUnderstandingDataProvider.Start: Scene Understanding not supported.");
+                    Debug.LogError("SceneUnderstandingDataProvider.Start: Scene Understanding not supported.");
                     return;
                 }
 
@@ -291,7 +291,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
             catch(Exception e)
             {
-                Logger.LogException(e);
+                Debug.LogException(e);
             }
 
             stopwatch.Stop();
@@ -609,7 +609,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             // Starting with 2018.1, Unity allows one to use 32-bit index buffers.
             if(combinedMeshVertices.Count > 65535)
             {
-                Logger.Log("SceneUnderstandingUtils.GenerateUnityMeshForSceneObjectMeshes: CombinedMeshVertices count is " + combinedMeshVertices.Count + ". Will be using a 32-bit index buffer.");
+                Debug.Log("SceneUnderstandingUtils.GenerateUnityMeshForSceneObjectMeshes: CombinedMeshVertices count is " + combinedMeshVertices.Count + ". Will be using a 32-bit index buffer.");
                 unityMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             }
 
@@ -763,7 +763,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         {
             if (obj == null || label == null)
             {
-                Logger.LogWarning("SceneUnderstandingManager.AddLabel: One or more arguments are null.");
+                Debug.LogWarning("SceneUnderstandingManager.AddLabel: One or more arguments are null.");
                 return;
             }
 
@@ -799,7 +799,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         {
             if (parentTransform == null)
             {
-                Logger.LogWarning("SceneUnderstandingManager.DestroyAllGameObjectsUnderParent: Parent is null.");
+                Debug.LogWarning("SceneUnderstandingManager.DestroyAllGameObjectsUnderParent: Parent is null.");
                 return;
             }
 
@@ -925,7 +925,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 System.Numerics.Vector3 p3 = new System.Numerics.Vector3(-quadWith / 2,  quadHeight / 2, 0);
 
                 System.Numerics.Matrix4x4 floorTransform = suLargestFloorObj.GetLocationAsMatrix();
-                floorTransform = TransformUtils.ConvertRightHandedMatrix4x4ToLeftHanded(floorTransform);
+                floorTransform = ConvertRightHandedMatrix4x4ToLeftHanded(floorTransform);
 
                 System.Numerics.Vector3 tp1 = System.Numerics.Vector3.Transform(p1, floorTransform);
                 System.Numerics.Vector3 tp2 = System.Numerics.Vector3.Transform(p2, floorTransform);

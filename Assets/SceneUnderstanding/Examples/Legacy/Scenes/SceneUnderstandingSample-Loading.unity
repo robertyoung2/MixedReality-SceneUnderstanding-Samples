@@ -479,7 +479,7 @@ MonoBehaviour:
     type: 2}
   WorldMeshMaterial: {fileID: 2100000, guid: 86ec9582d8dcbc34bac58ae621e24af9, type: 2}
   DisplayTextLabels: 1
-  LabelFont: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+  LabelFont: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 3}
   StatusText: {fileID: 92930038}
   AutoRefresh: 1
   AutoRefreshIntervalInSeconds: 10

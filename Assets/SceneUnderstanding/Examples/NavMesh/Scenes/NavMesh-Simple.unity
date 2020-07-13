@@ -127,6 +127,31 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 841577871110379600, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2586047473144007251, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4742075709544102751, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348667826600636860, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7942613190837443120, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8426562319273264624, guid: 9e92419956a00654aafabc6885e89266,
         type: 3}
       propertyPath: m_Mesh
@@ -505,36 +530,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
-        type: 3}
-      propertyPath: OnLoad.m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
-        type: 3}
-      propertyPath: OnLoad.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
-        type: 3}
-      propertyPath: OnLoad.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
-        type: 3}
-      propertyPath: OnLoad.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 657587274}
-    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
-        type: 3}
-      propertyPath: OnLoad.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: BakeMesh
-      objectReference: {fileID: 0}
-    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
-        type: 3}
-      propertyPath: OnLoad.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
     - target: {fileID: 1654952326856315524, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
       propertyPath: m_Name
@@ -543,7 +538,7 @@ PrefabInstance:
     - target: {fileID: 1654952326856315525, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.57
       objectReference: {fileID: 0}
     - target: {fileID: 1654952326856315525, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
