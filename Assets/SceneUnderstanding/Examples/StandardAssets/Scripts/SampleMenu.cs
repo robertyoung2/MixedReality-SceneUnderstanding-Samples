@@ -83,8 +83,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             while (actionContainer.childCount > 0)
             {
                 Transform child = actionContainer.GetChild(0);
-                GameObject.Destroy(child);
-                child.parent = null;
+                Destroy(child.gameObject);
+                child.SetParent(null, false);
             }
 
             // If there's no manager, bail
