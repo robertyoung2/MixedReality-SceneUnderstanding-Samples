@@ -567,31 +567,31 @@ PlayerSettings:
   metroCertificateNotAfter: 805ba071e972d701
   metroApplicationDescription: Scene Understanding
   wsaImages:
-    65636: Assets/Resources/Textures/UWPImages/StoreLogo.scale-100.png
-    65661: Assets/Resources/Textures/UWPImages/StoreLogo.scale-125.png
-    65686: Assets/Resources/Textures/UWPImages/StoreLogo.scale-150.png
-    65736: Assets/Resources/Textures/UWPImages/StoreLogo.scale-200.png
-    65936: Assets/Resources/Textures/UWPImages/StoreLogo.scale-400.png
-    2031632: Assets/Resources/Textures/UWPImages/Square44x44Logo.altform-unplated_targetsize-16.png
+    65636: Assets/SceneUnderstandingApp/Resources/Textures/UWPImages/StoreLogo.scale-100.png
+    65661: Assets/SceneUnderstandingApp/Resources/Textures/UWPImages/StoreLogo.scale-125.png
+    65686: Assets/SceneUnderstandingApp/Resources/Textures/UWPImages/StoreLogo.scale-150.png
+    65736: Assets/SceneUnderstandingApp/Resources/Textures/UWPImages/StoreLogo.scale-200.png
+    65936: Assets/SceneUnderstandingApp/Resources/Textures/UWPImages/StoreLogo.scale-400.png
+    2031632: 
     2031640: 
-    2031648: Assets/Resources/Textures/UWPImages/Square44x44Logo.targetsize-32.png
-    2031664: Assets/Resources/Textures/UWPImages/Square44x44Logo.targetsize-48.png
-    2031716: Assets/Resources/Textures/UWPImages/Square44x44Logo.scale-100.png
-    2031741: Assets/Resources/Textures/UWPImages/Square44x44Logo.scale-125.png
-    2031766: Assets/Resources/Textures/UWPImages/Square44x44Logo.scale-150.png
-    2031816: Assets/Resources/Textures/UWPImages/Square44x44Logo.scale-200.png
-    2031872: Assets/Resources/Textures/UWPImages/Square44x44Logo.targetsize-256.png
+    2031648: 
+    2031664: 
+    2031716: 
+    2031741: 
+    2031766: 
+    2031816: 
+    2031872: 
     2032016: 
-    2162788: Assets/Resources/Textures/UWPImages/Square150x150Logo.scale-100.png
-    2162813: Assets/Resources/Textures/UWPImages/Square150x150Logo.scale-125.png
-    2162838: Assets/Resources/Textures/UWPImages/Square150x150Logo.scale-150.png
-    2162888: Assets/Resources/Textures/UWPImages/Square150x150Logo.scale-200.png
-    2163088: Assets/Resources/Textures/UWPImages/Square150x150Logo.scale-400.png
-    2293860: Assets/Resources/Textures/UWPImages/Wide310x150Logo.scale-100.png
-    2293885: Assets/Resources/Textures/UWPImages/Wide310x150Logo.scale-125.png
-    2293910: Assets/Resources/Textures/UWPImages/Wide310x150Logo.scale-150.png
-    2293960: Assets/Resources/Textures/UWPImages/Wide310x150Logo.scale-200.png
-    2294160: Assets/Resources/Textures/UWPImages/Wide310x150Logo.scale-400.png
+    2162788: 
+    2162813: 
+    2162838: 
+    2162888: 
+    2163088: 
+    2293860: 
+    2293885: 
+    2293910: 
+    2293960: 
+    2294160: 
   metroTileShortName: SceneUnderstanding
   metroTileShowName: 0
   metroMediumTileShowName: 0
