@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: Microsoft Corporation
-  productName: Scene Understanding
+  productName: Scene Understanding-Placement
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -564,7 +564,7 @@ PlayerSettings:
   metroCertificatePassword: 
   metroCertificateSubject: Microsoft Corporation
   metroCertificateIssuer: Microsoft Corporation
-  metroCertificateNotAfter: 805ba071e972d701
+  metroCertificateNotAfter: 8033f8d47d78d701
   metroApplicationDescription: Scene Understanding
   wsaImages:
     65636: Assets/SceneUnderstandingApp/Resources/Textures/UWPImages/StoreLogo.scale-100.png

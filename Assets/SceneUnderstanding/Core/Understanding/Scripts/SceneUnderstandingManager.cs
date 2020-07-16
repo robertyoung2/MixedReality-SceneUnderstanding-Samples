@@ -96,6 +96,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         public Material SceneObjectQuadMaterial = null;
         [Tooltip("Material for scene object mesh wireframes.")]
         public Material SceneObjectWireframeMaterial = null;
+        [Tooltip("Material for scene objects (invisible).")]
+        public Material TransparentOcclussion = null;
 
         [Header("Render Filters")]
         [Tooltip("Toggles display of all scene objects, except for the world mesh.")]
@@ -118,6 +120,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Header("Physics")]
         [Tooltip("Toggles the creation of objects with collider components")]
         public bool AddColliders = false;
+
+        [Header("Occlussion")]
+        [Tooltip("Toggle Ghost Mode, (invisible objects that occlude)")]
+        public bool isInGhostMode = false;
 
         [Header("Events")]
         [Tooltip("User function that get called when a Scene Understanding event happens")]
@@ -697,7 +703,16 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             MeshFilter mf = unityObj.AddComponent<MeshFilter>();
             mf.sharedMesh = mesh;
 
-            Material tempMaterial = Instantiate(material);
+            Material tempMaterial;
+            if(isInGhostMode)
+            {
+                tempMaterial = Instantiate(TransparentOcclussion);
+            }
+            else
+            {
+                tempMaterial = Instantiate(material);
+            }
+            
             if(color != null)
             {
                 tempMaterial.color = color.Value;
@@ -942,6 +957,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 SceneRoot.transform.rotation = rotation;
             }
         }
+
+
 
         #endregion
 

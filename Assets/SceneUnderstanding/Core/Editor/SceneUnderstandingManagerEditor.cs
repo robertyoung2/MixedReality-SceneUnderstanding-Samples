@@ -13,6 +13,7 @@
         SerializedProperty serializedMeshMaterial;
         SerializedProperty serializedQuadMaterial;
         SerializedProperty serializedWireFrameMaterial;
+        SerializedProperty serializedInvisibleMaterial;
         SerializedProperty serializedRenderSceneObjects;
         SerializedProperty serializedDisplayTextLabels;
         SerializedProperty serializedRenderPlatformsObjects;
@@ -41,6 +42,7 @@
             serializedMeshMaterial = serializedObject.FindProperty("SceneObjectMeshMaterial");
             serializedQuadMaterial = serializedObject.FindProperty("SceneObjectQuadMaterial");
             serializedWireFrameMaterial = serializedObject.FindProperty("SceneObjectWireframeMaterial");
+            serializedInvisibleMaterial = serializedObject.FindProperty("TransparentOcclussion");
             serializedRenderQuality = serializedObject.FindProperty("RenderQuality");
             serializedRenderSceneObjects = serializedObject.FindProperty("RenderSceneObjects");
             serializedDisplayTextLabels = serializedObject.FindProperty("DisplayTextLabels");
@@ -131,6 +133,7 @@
             EditorGUILayout.PropertyField(serializedMeshMaterial);
             EditorGUILayout.PropertyField(serializedQuadMaterial);
             EditorGUILayout.PropertyField(serializedWireFrameMaterial);
+            EditorGUILayout.PropertyField(serializedInvisibleMaterial);
             GUILayout.Space(4.0f);
 
             GUILayout.Label("Render Filters", EditorStyles.boldLabel);
@@ -160,6 +163,11 @@
                 GUIContent RenderCompletelyInferredSceneObjectsContent = new GUIContent("Render Completely Inferred Scene Objects", "Toggles the display of completely inferred scene objects.");
                 SUManager.RenderCompletelyInferredSceneObjects = EditorGUILayout.Toggle(RenderCompletelyInferredSceneObjectsContent,SUManager.RenderCompletelyInferredSceneObjects);
             }
+            GUILayout.Space(4.0f);
+
+            GUILayout.Label("Ghost Mode", EditorStyles.boldLabel);
+            GUIContent GhostModeContent = new GUIContent("Ghost Mode", "When enabled, the scene objects will be invisible but still occlude other objects");
+            SUManager.isInGhostMode = EditorGUILayout.Toggle(GhostModeContent,SUManager.isInGhostMode);
             GUILayout.Space(4.0f);
 
             GUILayout.Label("Physics", EditorStyles.boldLabel);

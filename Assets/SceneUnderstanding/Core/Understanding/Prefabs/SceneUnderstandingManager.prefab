@@ -45,7 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RunOnDevice: 0
   SUSerializedScenePaths:
-  - {fileID: 4900000, guid: 82ce9e90cb0010645b80557a1d4a4263, type: 3}
+  - {fileID: 4900000, guid: 60afa97ae67aa8044b1a2239396b5647, type: 3}
   SceneRoot: {fileID: 0}
   BoundingSphereRadiusInMeters: 10
   AutoRefresh: 1
@@ -66,6 +66,8 @@ MonoBehaviour:
     type: 2}
   SceneObjectWireframeMaterial: {fileID: 2100000, guid: 86ec9582d8dcbc34bac58ae621e24af9,
     type: 2}
+  TransparentOcclussion: {fileID: 2100000, guid: aeb8d1d6bacc40846ba6b49f18532a87,
+    type: 2}
   RenderSceneObjects: 1
   DisplayTextLabels: 1
   RenderPlatformSceneObjects: 1
@@ -75,7 +77,19 @@ MonoBehaviour:
   RequestInferredRegions: 1
   RenderCompletelyInferredSceneObjects: 1
   AddColliders: 1
+  isInGhostMode: 0
   OnLoad:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_MethodName: BakeMesh
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   timeElapsedSinceLastAutoRefresh: 0

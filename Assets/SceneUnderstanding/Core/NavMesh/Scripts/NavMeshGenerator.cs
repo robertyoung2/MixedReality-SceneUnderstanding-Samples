@@ -25,7 +25,6 @@ public class NavMeshGenerator : MonoBehaviour
 
         if(navMeshAgentInstance == null)
         {
-            Debug.Log("??");
             navMeshAgentInstance = Instantiate<GameObject>(navMeshAgentRef, new Vector3(0.0f,-0.5f,-3.0f), Quaternion.identity);
         }
     }

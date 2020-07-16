@@ -156,6 +156,12 @@
                 SuManager.StartDisplay();
             }));
 
+            inputActions.Add(InputAction.Create("Toggle Labels", KeyCode.P, "Enable / Disable labels for scene objects", () => 
+            {
+                SuManager.DisplayTextLabels = !SuManager.DisplayTextLabels;
+                SuManager.StartDisplay();
+            }));
+
             inputActions.Add(InputAction.Create("Scene Objects Quad", KeyCode.Alpha2, "Quad Mode", () =>
             {
                 SuManager.SceneObjectRenderMode = RenderMode.Quad;
@@ -224,7 +230,18 @@
                 SuManager.RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Fine;
             }));
 
+            inputActions.Add(InputAction.Create("Mesh Unlimited", KeyCode.None, "Unlimited quality mesh", () =>
+            {
+                SuManager.RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Unlimited;
+            }));
+
             inputActions.Add(InputAction.Create("Toggle MiniMap", KeyCode.M, "Show or hide the mini map", MiniMapToggle));
+
+            inputActions.Add(InputAction.Create("Toggle Ghost Mode", KeyCode.O, "Enable / Disable Ghost Mode (Scene Objects will still be there, but will be invisble)", () => 
+            {
+                SuManager.isInGhostMode = !SuManager.isInGhostMode;
+                SuManager.StartDisplay();
+            }));
 
             // Last batch of device-only commands
             if (suManager.RunOnDevice)

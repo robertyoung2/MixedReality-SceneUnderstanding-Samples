@@ -349,19 +349,9 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
-      propertyPath: SceneObjectMeshMaterial
+      propertyPath: SceneRoot
       value: 
-      objectReference: {fileID: 2100000, guid: 0746671642388094aa5fc149eb6c23be, type: 2}
-    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
-        type: 3}
-      propertyPath: SceneObjectQuadMaterial
-      value: 
-      objectReference: {fileID: 2100000, guid: b965b90bb115d7e4cad26c038848258f, type: 2}
-    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
-        type: 3}
-      propertyPath: SceneObjectWireframeMaterial
-      value: 
-      objectReference: {fileID: 2100000, guid: 86ec9582d8dcbc34bac58ae621e24af9, type: 2}
+      objectReference: {fileID: 190693769}
     - target: {fileID: 1654952326856315524, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
       propertyPath: m_Name
