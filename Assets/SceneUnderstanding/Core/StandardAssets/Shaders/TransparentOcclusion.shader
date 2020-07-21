@@ -5,11 +5,13 @@
     }
     SubShader
     {
-        Tags {"Queue" = "Geometry" }
+        Tags {"Queue" = "Geometry-1" }
+
+        ZWrite On
+        ColorMask 0
         
         Pass {
-            ZWrite On
-            ColorMask 0
+            
         }  
     }
 }
