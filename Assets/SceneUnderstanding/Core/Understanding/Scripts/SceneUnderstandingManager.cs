@@ -1241,7 +1241,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 #if WINDOWS_UWP
                 var folder = WindowsStorage.ApplicationData.Current.LocalFolder;
                 var file = await folder.CreateFileAsync(fileName, WindowsStorage.CreationCollisionOption.GenerateUniqueName);
-                await WindowsStorage.FileIO.WriteBytesAsync(file, data);
+                await WindowsStorage.FileIO.AppendTextAsync(file, data);
                 #else
                 Debug.Log("Save on Device is only supported in Universal Windows Applications");
                 #endif
