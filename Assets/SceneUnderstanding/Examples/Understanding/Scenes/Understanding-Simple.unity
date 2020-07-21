@@ -377,7 +377,7 @@ PrefabInstance:
     - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
       propertyPath: RunOnDevice
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
@@ -478,10 +478,60 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1121964957116792311, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.characterCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121964957116792311, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.spaceCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121964957116792311, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.wordCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121964957116792311, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.lineCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121964957116792311, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.pageCount
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2586047473144007251, guid: 9e92419956a00654aafabc6885e89266,
         type: 3}
       propertyPath: m_Mesh
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4066142959011728182, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.characterCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4066142959011728182, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.spaceCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4066142959011728182, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.wordCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4066142959011728182, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.lineCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4066142959011728182, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.pageCount
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4742075709544102751, guid: 9e92419956a00654aafabc6885e89266,
         type: 3}
@@ -496,7 +546,7 @@ PrefabInstance:
     - target: {fileID: 7351148018992450299, guid: 9e92419956a00654aafabc6885e89266,
         type: 3}
       propertyPath: PivotAxis
-      value: 1
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7942613190837443120, guid: 9e92419956a00654aafabc6885e89266,
         type: 3}
@@ -578,5 +628,25 @@ PrefabInstance:
       propertyPath: suManager
       value: 
       objectReference: {fileID: 630412908}
+    - target: {fileID: 8562422553275920628, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.characterCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8562422553275920628, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.wordCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8562422553275920628, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.lineCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8562422553275920628, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_textInfo.pageCount
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e92419956a00654aafabc6885e89266, type: 3}

@@ -16,7 +16,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         XZ,
         YZ,
         // Rotate about all axes.
-        Free
+        Free,
+        //Keep the object static
+        None
     }
     
 
@@ -51,6 +53,11 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         /// </summary>
         private void LateUpdate()
         {
+            if(PivotAxis == PivotAxis.None)
+            {
+                return;
+            }
+
             // Get a Vector that points from the target to the main camera.
             Vector3 directionToTarget = TargetTransform.position - transform.position;
 
