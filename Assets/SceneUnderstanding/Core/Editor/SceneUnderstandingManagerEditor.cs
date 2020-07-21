@@ -7,8 +7,12 @@
     public class SceneUnderstandingManagerEditor : Editor
     {
         SceneUnderstandingManager SUManager;
+        SerializedProperty serializedRunOnDevice;
         SerializedProperty serializedSUScene;
         SerializedProperty serializedRootGameObject;
+        SerializedProperty serializedBoudingSphereRadiousInMeters;
+        SerializedProperty serializedAutoRefreshData;
+        SerializedProperty serializedAutoRefreshIntervalInSeconds;
         SerializedProperty serializedRenderMode;
         SerializedProperty serializedMeshMaterial;
         SerializedProperty serializedQuadMaterial;
@@ -31,19 +35,32 @@
         SerializedProperty serializedRenderColorUnknown;
         SerializedProperty serializedRenderColorCompletelyInferred;
         SerializedProperty serializedRenderColorWorld;
-        SerializedProperty serializedOnLoadCallback;
+        SerializedProperty serializedisInGhostMode;
+        SerializedProperty serializedAddColliders;
+        SerializedProperty serializedOnLoadStartedCallback;
+        SerializedProperty serializedOnLoadFinishedCallback;
 
         private void OnEnable()
         {
             SUManager = this.target as SceneUnderstandingManager;
+            serializedRunOnDevice = serializedObject.FindProperty("RunOnDevice");
+
             serializedSUScene = serializedObject.FindProperty("SUSerializedScenePaths");
             serializedRootGameObject = serializedObject.FindProperty("SceneRoot");
+
+            serializedBoudingSphereRadiousInMeters = serializedObject.FindProperty("BoundingSphereRadiusInMeters");
+            serializedAutoRefreshData = serializedObject.FindProperty("AutoRefresh");
+            serializedAutoRefreshIntervalInSeconds = serializedObject.FindProperty("AutoRefreshIntervalInSeconds");
+
             serializedRenderMode = serializedObject.FindProperty("SceneObjectRenderMode");
+            serializedRenderQuality = serializedObject.FindProperty("RenderQuality");
+
+
             serializedMeshMaterial = serializedObject.FindProperty("SceneObjectMeshMaterial");
             serializedQuadMaterial = serializedObject.FindProperty("SceneObjectQuadMaterial");
             serializedWireFrameMaterial = serializedObject.FindProperty("SceneObjectWireframeMaterial");
             serializedInvisibleMaterial = serializedObject.FindProperty("TransparentOcclussion");
-            serializedRenderQuality = serializedObject.FindProperty("RenderQuality");
+
             serializedRenderSceneObjects = serializedObject.FindProperty("RenderSceneObjects");
             serializedDisplayTextLabels = serializedObject.FindProperty("DisplayTextLabels");
             serializedRenderPlatformsObjects = serializedObject.FindProperty("RenderPlatformSceneObjects");
@@ -52,6 +69,7 @@
             serializedRenderWorldMesh = serializedObject.FindProperty("RenderWorldMesh");
             serializedRequestInferredRegions = serializedObject.FindProperty("RequestInferredRegions");
             serializedRenderCompletelyInferredSceneObjects = serializedObject.FindProperty("RenderCompletelyInferredSceneObjects");
+
             serializedRenderColorBackGrounds = serializedObject.FindProperty("ColorForBackgroundObjs");
             serializedRenderColorWall = serializedObject.FindProperty("ColorForWallObjs");
             serializedRenderColorFloor = serializedObject.FindProperty("ColorForFloorObjs");
@@ -60,16 +78,25 @@
             serializedRenderColorUnknown = serializedObject.FindProperty("ColorForUnknownObjs");
             serializedRenderColorCompletelyInferred = serializedObject.FindProperty("ColorForInferredObjs");
             serializedRenderColorWorld = serializedObject.FindProperty("ColorForWorldObjs");
-            serializedOnLoadCallback = serializedObject.FindProperty("OnLoad");
+
+            serializedisInGhostMode = serializedObject.FindProperty("isInGhostMode");
+
+            serializedAddColliders = serializedObject.FindProperty("AddColliders");
+
+            serializedOnLoadStartedCallback = serializedObject.FindProperty("OnLoadStarted");
+            serializedOnLoadFinishedCallback = serializedObject.FindProperty("OnLoadFinished");
+            
         }
 
         public override void OnInspectorGUI()
         {
+            //Load Latest, before any changes
             serializedObject.Update();
 
-            GUILayout.Label("Data Loader Mode", EditorStyles.boldLabel);
-            GUIContent RunOnDeviceContent = new GUIContent("Run On Device", "When enabled, the scene will run using a device (e.g Hololens). Otherwise, a previously saved, serialized scene will be loaded and served from your PC.");
-            SUManager.RunOnDevice = EditorGUILayout.Toggle(RunOnDeviceContent,SUManager.RunOnDevice);
+            //Data Loader Mode (Run On device flag)
+            EditorGUILayout.PropertyField(serializedRunOnDevice);
+
+            //PC path
             if(!SUManager.RunOnDevice)
             {
                 GUILayout.Label("Scene Fragments: ", EditorStyles.boldLabel);
@@ -87,7 +114,7 @@
                 }
 
                 EditorGUI.indentLevel += 1;
-                EditorGUILayout.PropertyField(serializedSUScene,false);
+                EditorGUILayout.PropertyField(serializedSUScene, false);
                 for (int i = 0; i < serializedSUScene.arraySize; i++)
                 {
                     EditorGUILayout.PropertyField(serializedSUScene.GetArrayElementAtIndex(i));
@@ -96,30 +123,33 @@
             }
             GUILayout.Space(4.0f);
 
+            //Scene Root
             EditorGUILayout.PropertyField(serializedRootGameObject);
             GUILayout.Space(4.0f);
-
+            
+            //Data Loader Params
             if(SUManager.RunOnDevice)
             {
                 GUILayout.Label("Data Loader Parameters", EditorStyles.boldLabel);
                 GUIContent BoundingSphereRadiousInMetersContent = new GUIContent("Bounding Sphere Radious In Meters", "Radius of the sphere around the camera, which is used to query the environment.");
-                SUManager.BoundingSphereRadiusInMeters = EditorGUILayout.Slider(BoundingSphereRadiousInMetersContent, SUManager.BoundingSphereRadiusInMeters, 5.0f, 100.0f);
+                serializedBoudingSphereRadiousInMeters.floatValue = EditorGUILayout.Slider(BoundingSphereRadiousInMetersContent, serializedBoudingSphereRadiousInMeters.floatValue, 5.0f, 100.0f);
 
-                GUIContent AutoRefreshContent = new GUIContent("Auto Refresh Data", "When enabled, the latest data from Scene Understanding data provider will be displayed periodically (controlled by the AutoRefreshIntervalInSeconds float).");
-                SUManager.AutoRefresh = EditorGUILayout.Toggle(AutoRefreshContent,SUManager.AutoRefresh);
-
+                EditorGUILayout.PropertyField(serializedAutoRefreshData);
+                
                 if(SUManager.AutoRefresh)
                 {
                     GUIContent AutoRefreshIntervalInSeconds = new GUIContent("Auto Refresh Interval In Seconds", "Interval to use for auto refresh, in seconds.");
-                    SUManager.AutoRefreshIntervalInSeconds = EditorGUILayout.Slider(AutoRefreshIntervalInSeconds, SUManager.AutoRefreshIntervalInSeconds, 1.0f, 60.0f);
+                    serializedAutoRefreshIntervalInSeconds.floatValue = EditorGUILayout.Slider(AutoRefreshIntervalInSeconds, serializedAutoRefreshIntervalInSeconds.floatValue, 1.0f, 60.0f);
                 }
                 GUILayout.Space(4.0f);
             }
 
+            //Render Mode
             EditorGUILayout.PropertyField(serializedRenderMode);
             EditorGUILayout.PropertyField(serializedRenderQuality);
             GUILayout.Space(4.0f);
 
+            //Colors
             EditorGUILayout.PropertyField(serializedRenderColorBackGrounds);
             EditorGUILayout.PropertyField(serializedRenderColorWall);
             EditorGUILayout.PropertyField(serializedRenderColorFloor);
@@ -130,54 +160,42 @@
             EditorGUILayout.PropertyField(serializedRenderColorWorld);
             GUILayout.Space(4.0f);
 
+            //Materials
             EditorGUILayout.PropertyField(serializedMeshMaterial);
             EditorGUILayout.PropertyField(serializedQuadMaterial);
             EditorGUILayout.PropertyField(serializedWireFrameMaterial);
             EditorGUILayout.PropertyField(serializedInvisibleMaterial);
             GUILayout.Space(4.0f);
 
-            GUILayout.Label("Render Filters", EditorStyles.boldLabel);
-            GUIContent RenderSceneObjectsContent = new GUIContent("Render Scene Objects", "Toggles display of all scene objects, except for the world mesh.");
-            SUManager.RenderSceneObjects = EditorGUILayout.Toggle(RenderSceneObjectsContent, SUManager.RenderSceneObjects);
-
-            GUIContent DisplayTextLabelsContent = new GUIContent("Display Text Labels", "Display text labels for the scene objects.");
-            SUManager.DisplayTextLabels = EditorGUILayout.Toggle(DisplayTextLabelsContent, SUManager.DisplayTextLabels);
-
-            GUIContent RenderPlatformsObjectsContent = new GUIContent("Render Platforms Objects", "Toggles display of large, horizontal scene objects, aka 'Platform'.");
-            SUManager.RenderPlatformSceneObjects = EditorGUILayout.Toggle(RenderPlatformsObjectsContent, SUManager.RenderPlatformSceneObjects);
-
-            GUIContent RenderBackgroundObjectsContent = new GUIContent("Render Background Objects", "Toggles the display of background scene objects.");
-            SUManager.RenderBackgroundSceneObjects = EditorGUILayout.Toggle(RenderBackgroundObjectsContent, SUManager.RenderBackgroundSceneObjects);
-
-            GUIContent RenderUnknownObjectsContent = new GUIContent("Render Unknown Objects", "Toggles the display of unknown scene objects.");
-            SUManager.RenderUnknownSceneObjects = EditorGUILayout.Toggle(RenderUnknownObjectsContent, SUManager.RenderUnknownSceneObjects);
-
-            GUIContent RenderWorldMeshContent = new GUIContent("Render World Mesh", "Toggles the display of the world mesh.");
-            SUManager.RenderWorldMesh = EditorGUILayout.Toggle(RenderWorldMeshContent, SUManager.RenderWorldMesh);
-
-            GUIContent RequestInferredRegionsContent = new GUIContent("Request Inferred Regions", "When enabled, requests observed and inferred regions for scene objects. When disabled, requests only the observed regions for scene objects.");
-            SUManager.RequestInferredRegions = EditorGUILayout.Toggle(RequestInferredRegionsContent, SUManager.RequestInferredRegions);
-
+            //Render Filters
+            EditorGUILayout.PropertyField(serializedRenderSceneObjects);
+            EditorGUILayout.PropertyField(serializedDisplayTextLabels);
+            EditorGUILayout.PropertyField(serializedRenderPlatformsObjects);
+            EditorGUILayout.PropertyField(serializedRenderBackgroundObjects);
+            EditorGUILayout.PropertyField(serializedRenderUnknownObjects);
+            EditorGUILayout.PropertyField(serializedRenderWorldMesh);
+            EditorGUILayout.PropertyField(serializedRequestInferredRegions);
             if(SUManager.RequestInferredRegions)
             {
-                GUIContent RenderCompletelyInferredSceneObjectsContent = new GUIContent("Render Completely Inferred Scene Objects", "Toggles the display of completely inferred scene objects.");
-                SUManager.RenderCompletelyInferredSceneObjects = EditorGUILayout.Toggle(RenderCompletelyInferredSceneObjectsContent,SUManager.RenderCompletelyInferredSceneObjects);
+                EditorGUILayout.PropertyField(serializedRenderCompletelyInferredSceneObjects);
             }
             GUILayout.Space(4.0f);
 
-            GUILayout.Label("Ghost Mode", EditorStyles.boldLabel);
-            GUIContent GhostModeContent = new GUIContent("Ghost Mode", "When enabled, the scene objects will be invisible but still occlude other objects");
-            SUManager.isInGhostMode = EditorGUILayout.Toggle(GhostModeContent,SUManager.isInGhostMode);
+            //Ghost Mode
+            EditorGUILayout.PropertyField(serializedisInGhostMode);
             GUILayout.Space(4.0f);
 
-            GUILayout.Label("Physics", EditorStyles.boldLabel);
-            GUIContent AddCollidersContent = new GUIContent("Add Colliders", "Toggles the creation of objects with collider components.");
-            SUManager.AddColliders = EditorGUILayout.Toggle(AddCollidersContent, SUManager.AddColliders);
+            EditorGUILayout.PropertyField(serializedAddColliders);
             GUILayout.Space(4.0f);
 
-            EditorGUILayout.PropertyField(serializedOnLoadCallback);
+            //Callbacks
+            EditorGUILayout.PropertyField(serializedOnLoadStartedCallback);
             GUILayout.Space(4.0f);
 
+            EditorGUILayout.PropertyField(serializedOnLoadFinishedCallback);
+            GUILayout.Space(4.0f);
+
+            //On Editor only
             if(!SUManager.RunOnDevice)
             {
                 GUILayout.Label("Actions", EditorStyles.boldLabel);
@@ -187,6 +205,7 @@
                 }
             }
 
+            //Apply Changes
             serializedObject.ApplyModifiedProperties();
         }
     }

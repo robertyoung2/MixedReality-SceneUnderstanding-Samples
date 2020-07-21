@@ -120,12 +120,35 @@ public class ObjectPlacer : MonoBehaviour
         }
     }
 
-    protected virtual void OnLoad()
+    public void FreezeHolograms()
     {
-        //When the scene loads/reloads delete all holograms/placed objects
+        //When the scene starts loading, freeze all holograms in place to avoid them falling on an empty scene
         foreach(GameObject obj in HoloObjects)
         {
-            Destroy(obj);
+            Rigidbody rb = obj.GetComponent<Rigidbody>();
+
+            if(rb == null)
+            {
+                continue;
+            }
+
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+        }
+    }
+
+    public void UnfreezeHolograms()
+    {
+        //When the scene finishes loading, unfreeze all holograms
+        foreach(GameObject obj in HoloObjects)
+        {
+            Rigidbody rb = obj.GetComponent<Rigidbody>();
+
+            if(rb == null)
+            {
+                continue;
+            }
+
+            rb.constraints = RigidbodyConstraints.None;
         }
     }
 

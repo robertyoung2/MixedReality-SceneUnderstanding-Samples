@@ -237,7 +237,7 @@
 
             inputActions.Add(InputAction.Create("Toggle MiniMap", KeyCode.M, "Show or hide the mini map", MiniMapToggle));
 
-            inputActions.Add(InputAction.Create("Toggle Ghost Mode", KeyCode.O, "Enable / Disable Ghost Mode (Scene Objects will still be there, but will be invisble)", () => 
+            inputActions.Add(InputAction.Create("Toggle Ghost Mode", KeyCode.O, "Enable / Disable Ghost Mode (Scene Objects will be invisible but still occlude)", () => 
             {
                 SuManager.isInGhostMode = !SuManager.isInGhostMode;
                 SuManager.StartDisplay();
@@ -260,8 +260,9 @@
                     SuManager.BoundingSphereRadiusInMeters = fTempFloat;
                 }));
 
-                inputActions.Add(InputAction.Create("Save Data", KeyCode.None, "Saves the current scene to storage", SaveData));
             }
+
+            inputActions.Add(InputAction.Create("Save Data", KeyCode.L, "Saves the current scene to storage", SaveData));
 
             inputActions.Add(InputAction.Create("Toggle Help", KeyCode.H, "Shows or hides the help menu", menu.Toggle));
         }
@@ -332,7 +333,8 @@
         /// </summary>
         private void SaveData()
         {
-            var t = SuManager.SaveBytesToDiskAsync();
+            var bytes = SuManager.SaveBytesToDiskAsync();
+            var objs = SuManager.SaveObjsToDiskAsync();
         }
         #endregion // Internal Methods
 

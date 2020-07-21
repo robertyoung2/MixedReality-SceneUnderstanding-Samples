@@ -147,6 +147,11 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 7351148018992450299, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: PivotAxis
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7942613190837443120, guid: 9e92419956a00654aafabc6885e89266,
         type: 3}
       propertyPath: m_Mesh
@@ -532,6 +537,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
+      propertyPath: OnLoadStarted.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: OnLoadFinished.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
       propertyPath: SceneRoot
       value: 
       objectReference: {fileID: 770273352}
@@ -542,14 +557,124 @@ PrefabInstance:
       objectReference: {fileID: 657587274}
     - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
-      propertyPath: SUSerializedScenePaths.Array.data[0]
+      propertyPath: OnLoadFinished.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 4900000, guid: 60afa97ae67aa8044b1a2239396b5647, type: 3}
+      objectReference: {fileID: 657587274}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: RunOnDevice
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: SceneObjectRenderMode
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
       propertyPath: RenderQuality
-      value: 255
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: BoundingSphereRadiusInMeters
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: AutoRefresh
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: AutoRefreshIntervalInSeconds
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: RenderSceneObjects
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: DisplayTextLabels
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: RenderPlatformSceneObjects
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: RenderBackgroundSceneObjects
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: RenderUnknownSceneObjects
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: RenderWorldMesh
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: RequestInferredRegions
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: RenderCompletelyInferredSceneObjects
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: isInGhostMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: AddColliders
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: OnLoadStarted.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: OnLoadStarted.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: OnLoadFinished.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: OnLoadFinished.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: OnLoadFinished.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: BakeMesh
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: OnLoadFinished.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: SUSerializedScenePaths.Array.data[0]
+      value: 
+      objectReference: {fileID: 4900000, guid: 82ce9e90cb0010645b80557a1d4a4263, type: 3}
     - target: {fileID: 1654952326856315524, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
       propertyPath: m_Name

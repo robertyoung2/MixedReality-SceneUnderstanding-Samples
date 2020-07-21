@@ -322,7 +322,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &1981387737
+--- !u!1 &1831273705
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -330,7 +330,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1981387738}
+  - component: {fileID: 1831273706}
   m_Layer: 0
   m_Name: Scene Root
   m_TagString: Untagged
@@ -338,15 +338,15 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1981387738
+--- !u!4 &1831273706
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1981387737}
+  m_GameObject: {fileID: 1831273705}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.28534606, y: -0.2244451, z: -2.0659213}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -363,7 +363,22 @@ PrefabInstance:
         type: 3}
       propertyPath: SceneRoot
       value: 
-      objectReference: {fileID: 1981387737}
+      objectReference: {fileID: 1831273705}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: AddColliders
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: RunOnDevice
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1654952326856315522, guid: a9b7988b52547e14899219ced698f6b2,
+        type: 3}
+      propertyPath: SUSerializedScenePaths.Array.data[0]
+      value: 
+      objectReference: {fileID: 4900000, guid: 82ce9e90cb0010645b80557a1d4a4263, type: 3}
     - target: {fileID: 1654952326856315524, guid: a9b7988b52547e14899219ced698f6b2,
         type: 3}
       propertyPath: m_Name
@@ -433,6 +448,36 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 841577871110379600, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2586047473144007251, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4742075709544102751, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348667826600636860, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7351148018992450299, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: PivotAxis
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7942613190837443120, guid: 9e92419956a00654aafabc6885e89266,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8426562319273264624, guid: 9e92419956a00654aafabc6885e89266,
         type: 3}
       propertyPath: m_Mesh

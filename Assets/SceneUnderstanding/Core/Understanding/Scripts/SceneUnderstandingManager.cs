@@ -4,6 +4,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
     //System
     using System;
     using System.IO;
+    using System.Text;
     using System.Collections;
     using System.Threading.Tasks;
     using System.Collections.Generic;
@@ -15,10 +16,11 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
     //Unity
     using UnityEngine;
     using UnityEngine.Events;
+    
 
-    #if WINDOWS_UWP
+#if WINDOWS_UWP
     using WindowsStorage = global::Windows.Storage;
-    #endif
+#endif
 
     /// <summary>
     /// Different rendering modes available for scene objects.
@@ -122,12 +124,14 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         public bool AddColliders = false;
 
         [Header("Occlussion")]
-        [Tooltip("Toggle Ghost Mode, (invisible objects that occlude)")]
+        [Tooltip("Toggle Ghost Mode, (invisible objects that still occlude)")]
         public bool isInGhostMode = false;
 
         [Header("Events")]
         [Tooltip("User function that get called when a Scene Understanding event happens")]
-        public UnityEvent OnLoad;
+        public UnityEvent OnLoadStarted;
+        [Tooltip("User function that get called when a Scene Understanding event happens")]
+        public UnityEvent OnLoadFinished;
 
         #endregion
 
@@ -326,6 +330,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
             isDisplayInProgress = true;
             StartCoroutine(DisplayData());
+            //Run Callbacks for On Load Started
+            OnLoadStarted.Invoke();
         }
 
         private IEnumerator DisplayData()
@@ -394,8 +400,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
             Debug.Log("SceneUnderStandingManager.DisplayData: Display Completed");
 
-            //On Load Callbacks
-            OnLoad.Invoke();
+            //Run CallBacks for Onload Finished
+            OnLoadFinished.Invoke();
         }
 
         private bool DisplaySceneObject(SceneUnderstanding.SceneObject suObj)
@@ -465,10 +471,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 if(
                     kind == SceneUnderstanding.SceneObjectKind.Wall     ||
                     kind == SceneUnderstanding.SceneObjectKind.Floor    ||
-                    kind == SceneUnderstanding.SceneObjectKind.Ceiling  ||
+                    kind == SceneUnderstanding.SceneObjectKind.Ceiling  ||  
+                    kind == SceneUnderstanding.SceneObjectKind.Unknown  ||
                     kind == SceneUnderstanding.SceneObjectKind.Platform ||
-                    kind == SceneUnderstanding.SceneObjectKind.Background ||
-                    kind == SceneUnderstanding.SceneObjectKind.Unknown
+                    kind == SceneUnderstanding.SceneObjectKind.Background
                 )
                 {
                     AddLabel(unityParentHolderObj, kind.ToString());
@@ -1059,6 +1065,192 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     Debug.Log("SceneUnderstandingManager.SaveBytesToDisk: Scene Fragment saved at " + file);
                 }
 
+            }
+        }
+
+        public async Task SaveObjsToDiskAsync()
+        {
+            DateTime currentDate = DateTime.Now;
+            int year = currentDate.Year;
+            int month = currentDate.Month;
+            int day = currentDate.Day;
+            int hour = currentDate.Hour;
+            int min = currentDate.Minute;
+            int sec = currentDate.Second;
+
+            // List of all SceneObjectKind enum values.
+            List<SceneUnderstanding.SceneObjectKind> sceneObjectKinds = new List<SceneObjectKind>();
+            sceneObjectKinds.Add(SceneUnderstanding.SceneObjectKind.Background);
+            sceneObjectKinds.Add(SceneUnderstanding.SceneObjectKind.Ceiling);
+            sceneObjectKinds.Add(SceneUnderstanding.SceneObjectKind.CompletelyInferred);
+            sceneObjectKinds.Add(SceneUnderstanding.SceneObjectKind.Floor);
+            sceneObjectKinds.Add(SceneUnderstanding.SceneObjectKind.Platform);
+            sceneObjectKinds.Add(SceneUnderstanding.SceneObjectKind.Unknown);
+            sceneObjectKinds.Add(SceneUnderstanding.SceneObjectKind.Wall);
+            sceneObjectKinds.Add(SceneUnderstanding.SceneObjectKind.World);
+
+            List<Task> tasks = new List<Task>();
+
+            if(RunOnDevice)
+            {
+                byte[] OnDeviceBytes = GetLatestSUScene();
+                if (OnDeviceBytes == null)
+                {
+                    Debug.LogWarning("SceneUnderstandingManager.SaveObjsToDisk: Nothing to save.");
+                    return;
+                }
+
+                // Deserialize the scene.
+                SceneUnderstanding.Scene scene = SceneUnderstanding.Scene.Deserialize(OnDeviceBytes);
+                foreach (SceneUnderstanding.SceneObjectKind soKind in sceneObjectKinds)
+                {
+                    List<SceneUnderstanding.SceneObject> allObjectsOfAKind = new List<SceneObject>();
+                    foreach(SceneUnderstanding.SceneObject sceneObject in scene.SceneObjects)
+                    {
+                        if(sceneObject.Kind == soKind)
+                        {
+                            allObjectsOfAKind.Add(sceneObject);
+                        }
+                    }
+
+                    string fileName = string.Format("SU_{0}_{1}-{2}-{3}_{4}-{5}-{6}.obj",
+                                                soKind.ToString(), year, month, day, hour, min, sec);
+
+                    tasks.Add(SaveAllSceneObjectsOfAKindAsOneObj(allObjectsOfAKind, GetColor(soKind), fileName));
+                }
+                await Task.WhenAll(tasks);
+            }
+            else
+            {
+                foreach (SceneUnderstanding.SceneObjectKind soKind in sceneObjectKinds)
+                {
+                    List<SceneUnderstanding.SceneObject> allObjectsOfAKind = new List<SceneObject>();
+                    foreach(TextAsset serializedScene in SUSerializedScenePaths)
+                    {
+                        byte[] fragmentBytes = serializedScene.bytes;
+                        SceneUnderstanding.Scene scene = SceneUnderstanding.Scene.Deserialize(fragmentBytes);
+
+                        foreach(SceneUnderstanding.SceneObject sceneObject in scene.SceneObjects)
+                        {
+                            if(sceneObject.Kind == soKind)
+                            {
+                                allObjectsOfAKind.Add(sceneObject);
+                            }
+                        }
+                    }
+
+                    string fileName = string.Format("SU_{0}_{1}-{2}-{3}_{4}-{5}-{6}.obj",
+                                                soKind.ToString(), year, month, day, hour, min, sec);
+
+                    tasks.Add(SaveAllSceneObjectsOfAKindAsOneObj(allObjectsOfAKind, GetColor(soKind), fileName));
+                }
+            }
+
+        }
+
+        private async Task SaveAllSceneObjectsOfAKindAsOneObj(List<SceneUnderstanding.SceneObject> sceneObjects, Color? color, string fileName)
+        {
+            if (sceneObjects == null)
+            {
+                return;
+            }
+            
+            List<System.Numerics.Vector3> combinedMeshVertices = new List<System.Numerics.Vector3>();
+            List<uint> combinedMeshIndices = new List<uint>();
+            
+            // Go through each scene object, retrieve its meshes and add them to the combined lists, defined above.
+            foreach (SceneUnderstanding.SceneObject so in sceneObjects)
+            {
+                if (so == null)
+                {
+                    continue;
+                }
+
+                IEnumerable<SceneUnderstanding.SceneMesh> meshes = so.Meshes;
+                if (meshes == null)
+                {
+                    continue;
+                }
+                
+                foreach (SceneUnderstanding.SceneMesh mesh in meshes)
+                {
+                    // Get the mesh vertices.
+                    var mvList = new System.Numerics.Vector3[mesh.VertexCount];
+                    mesh.GetVertexPositions(mvList);
+
+                    // Transform the vertices using the transformation matrix.
+                    TransformVertices(so.GetLocationAsMatrix(), mvList);
+                    
+                    // Store the current set of vertices in the combined list. As we add indices, we'll offset it by this value.
+                    uint indexOffset = (uint)combinedMeshVertices.Count;
+                    
+                    // Add the new set of mesh vertices to the existing set.
+                    combinedMeshVertices.AddRange(mvList);
+
+                    // Get the mesh indices.
+                    uint[] mi = new uint[mesh.TriangleIndexCount];
+                    mesh.GetTriangleIndices(mi);
+
+                    // Add the new set of mesh indices to the existing set.
+                    for (int i = 0; i < mi.Length; ++i)
+                    {
+                        combinedMeshIndices.Add((uint)(mi[i] + indexOffset));
+                    }
+                }
+            }
+
+            // Write as string to file.
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < combinedMeshVertices.Count; ++i)
+            {
+                sb.Append(string.Format("v {0} {1} {2} {3} {4} {5}\n", combinedMeshVertices[i].X, combinedMeshVertices[i].Y, combinedMeshVertices[i].Z, color.Value.r, color.Value.g, color.Value.b));
+            }
+
+            for (int i = 0; i < combinedMeshIndices.Count; i += 3)
+            {
+                // Indices start at index 1 (as opposed to 0) in objs.
+                sb.Append(string.Format("f {0} {1} {2}\n", combinedMeshIndices[i] + 1, combinedMeshIndices[i + 1] + 1, combinedMeshIndices[i + 2] + 1));
+            }
+
+            await SaveStringToDiskAsync(sb.ToString(), fileName);
+        }
+
+// Await is conditionally compiled out based on platform but needs to be awaitable
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        private async Task SaveStringToDiskAsync(string data, string fileName)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        {
+            if (string.IsNullOrEmpty(data))
+            {
+                Debug.LogWarning("SceneUnderstandingManager.SaveStringToDiskAsync: Nothing to save.");
+                return;
+            }
+
+            if(RunOnDevice)
+            {
+                #if WINDOWS_UWP
+                var folder = WindowsStorage.ApplicationData.Current.LocalFolder;
+                var file = await folder.CreateFileAsync(fileName, WindowsStorage.CreationCollisionOption.GenerateUniqueName);
+                await WindowsStorage.FileIO.WriteBytesAsync(file, data);
+                #else
+                Debug.Log("Save on Device is only supported in Universal Windows Applications");
+                #endif
+            }
+            else
+            {
+                string folder = Path.GetTempPath();
+                string file = Path.Combine(folder, fileName);
+                File.WriteAllText(file, data);
+                Debug.Log("SceneUnderstandingManager.SaveStringToDiskAsync: Scene Objects saved at " + file);
+            }
+        }
+        
+        private void TransformVertices(System.Numerics.Matrix4x4 transformationMatrix, System.Numerics.Vector3[] vertices)
+        {
+            for (int i = 0; i < vertices.Length; ++i)
+            {
+                vertices[i] = System.Numerics.Vector3.Transform(vertices[i], transformationMatrix);
             }
         }
 

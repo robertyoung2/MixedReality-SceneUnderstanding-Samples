@@ -43,7 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf91772e59effdc478493c7b4907aa27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RunOnDevice: 0
+  RunOnDevice: 1
   SUSerializedScenePaths:
   - {fileID: 4900000, guid: 60afa97ae67aa8044b1a2239396b5647, type: 3}
   SceneRoot: {fileID: 0}
@@ -78,18 +78,10 @@ MonoBehaviour:
   RenderCompletelyInferredSceneObjects: 1
   AddColliders: 1
   isInGhostMode: 0
-  OnLoad:
+  OnLoadStarted:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_MethodName: BakeMesh
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
+  OnLoadFinished:
+    m_PersistentCalls:
+      m_Calls: []
   timeElapsedSinceLastAutoRefresh: 0
