@@ -330,6 +330,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
             isDisplayInProgress = true;
             StartCoroutine(DisplayData());
+
             //Run Callbacks for On Load Started
             OnLoadStarted.Invoke();
         }
@@ -337,59 +338,68 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         private IEnumerator DisplayData()
         {
             Debug.Log("SceneUnderstandingManager.DisplayData: About to display the latest set of Scene Objects");
-
-            List<SceneUnderstanding.Scene> suScenes = new List<SceneUnderstanding.Scene>();
-
+            SceneUnderstanding.Scene suScene = null;
             if(RunOnDevice)
             {
                 byte[] latestSceneSnapShot = GetLatestSUScene();
                 Guid latestGuidSnapShot = GetLatestSUSceneId();
-                suScenes.Add(SceneUnderstanding.Scene.Deserialize(latestSceneSnapShot));
+                suScene = SceneUnderstanding.Scene.Deserialize(latestSceneSnapShot);
                 //This at the end
                 lastDisplayedSceneGuid = latestGuidSnapShot;
             }
             else
             {
+                SceneFragment[] SceneFragments = new SceneFragment[SUSerializedScenePaths.Count];
+                int index = 0;
                 foreach(TextAsset serializedScene in SUSerializedScenePaths)
                 {
                     if(serializedScene != null)
                     {
                         byte[] sceneData = serializedScene.bytes;
-                        suScenes.Add(SceneUnderstanding.Scene.Deserialize(sceneData));
+                        SceneFragment frag = SceneFragment.Deserialize(sceneData);
+                        SceneFragments[index++] = frag;
                     }
                 }
+                
+                try
+                {
+                    suScene = SceneUnderstanding.Scene.FromFragments(SceneFragments);
+                }
+                catch(Exception e)
+                {
+                    Debug.LogWarning("Scene from PC path couldn't be loaded, verify scene fragments are not null in the inspector. Terminating with exception");
+                    Debug.LogException(e);
+                }
+                
             }
 
-            if(suScenes.Count > 0)
+            if(suScene != null)
             {
                 DestroyAllGameObjectsUnderParent(SceneRoot.transform);
 
                 yield return null;
 
-                foreach (SceneUnderstanding.Scene suScene in suScenes)
+                System.Numerics.Matrix4x4 sceneToUnityTransformAsMatrix4x4 = GetSceneToUnityTransformAsMatrix4x4(suScene);
+
+                if(sceneToUnityTransformAsMatrix4x4 != null)
                 {
-                    System.Numerics.Matrix4x4 sceneToUnityTransformAsMatrix4x4 = GetSceneToUnityTransformAsMatrix4x4(suScene);
+                    SetUnityTransformFromMatrix4x4(SceneRoot.transform, sceneToUnityTransformAsMatrix4x4, RunOnDevice);
 
-                    if(sceneToUnityTransformAsMatrix4x4 != null)
+                    if(!RunOnDevice)
                     {
-                        SetUnityTransformFromMatrix4x4(SceneRoot.transform, sceneToUnityTransformAsMatrix4x4, RunOnDevice);
+                        OrientSceneForPC(SceneRoot, suScene);
+                    }
 
-                        if(!RunOnDevice)
+                    IEnumerable<SceneUnderstanding.SceneObject> sceneObjects = suScene.SceneObjects;
+
+                    int i = 0;
+                    foreach (SceneUnderstanding.SceneObject sceneObject in sceneObjects)
+                    {
+                        if(DisplaySceneObject(sceneObject))
                         {
-                            OrientSceneForPC(SceneRoot, suScene);
-                        }
-
-                        IEnumerable<SceneUnderstanding.SceneObject> sceneObjects = suScene.SceneObjects;
-
-                        int i = 0;
-                        foreach (SceneUnderstanding.SceneObject sceneObject in sceneObjects)
-                        {
-                            if(DisplaySceneObject(sceneObject))
+                            if(++i % 5 == 0)
                             {
-                                if(++i % 5 == 0)
-                                {
-                                    yield return null;
-                                }
+                                yield return null;
                             }
                         }
                     }
@@ -397,9 +407,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
 
             isDisplayInProgress = false;
-
             Debug.Log("SceneUnderStandingManager.DisplayData: Display Completed");
-
             //Run CallBacks for Onload Finished
             OnLoadFinished.Invoke();
         }
@@ -1090,7 +1098,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             sceneObjectKinds.Add(SceneUnderstanding.SceneObjectKind.World);
 
             List<Task> tasks = new List<Task>();
-
+            SceneUnderstanding.Scene scene = null;
             if(RunOnDevice)
             {
                 byte[] OnDeviceBytes = GetLatestSUScene();
@@ -1101,51 +1109,52 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 }
 
                 // Deserialize the scene.
-                SceneUnderstanding.Scene scene = SceneUnderstanding.Scene.Deserialize(OnDeviceBytes);
-                foreach (SceneUnderstanding.SceneObjectKind soKind in sceneObjectKinds)
-                {
-                    List<SceneUnderstanding.SceneObject> allObjectsOfAKind = new List<SceneObject>();
-                    foreach(SceneUnderstanding.SceneObject sceneObject in scene.SceneObjects)
-                    {
-                        if(sceneObject.Kind == soKind)
-                        {
-                            allObjectsOfAKind.Add(sceneObject);
-                        }
-                    }
-
-                    string fileName = string.Format("SU_{0}_{1}-{2}-{3}_{4}-{5}-{6}.obj",
-                                                soKind.ToString(), year, month, day, hour, min, sec);
-
-                    tasks.Add(SaveAllSceneObjectsOfAKindAsOneObj(allObjectsOfAKind, GetColor(soKind), fileName));
-                }
-                await Task.WhenAll(tasks);
+                scene = SceneUnderstanding.Scene.Deserialize(OnDeviceBytes);  
             }
             else
             {
-                foreach (SceneUnderstanding.SceneObjectKind soKind in sceneObjectKinds)
+                SceneFragment[] SceneFragments = new SceneFragment[SUSerializedScenePaths.Count];
+                int index = 0;
+                foreach(TextAsset serializedScene in SUSerializedScenePaths)
                 {
-                    List<SceneUnderstanding.SceneObject> allObjectsOfAKind = new List<SceneObject>();
-                    foreach(TextAsset serializedScene in SUSerializedScenePaths)
+                    if(serializedScene != null)
                     {
-                        byte[] fragmentBytes = serializedScene.bytes;
-                        SceneUnderstanding.Scene scene = SceneUnderstanding.Scene.Deserialize(fragmentBytes);
-
-                        foreach(SceneUnderstanding.SceneObject sceneObject in scene.SceneObjects)
-                        {
-                            if(sceneObject.Kind == soKind)
-                            {
-                                allObjectsOfAKind.Add(sceneObject);
-                            }
-                        }
+                        byte[] sceneData = serializedScene.bytes;
+                        SceneFragment frag = SceneFragment.Deserialize(sceneData);
+                        SceneFragments[index++] = frag;
                     }
+                }
 
-                    string fileName = string.Format("SU_{0}_{1}-{2}-{3}_{4}-{5}-{6}.obj",
-                                                soKind.ToString(), year, month, day, hour, min, sec);
+                // Deserialize the scene.
+                scene = SceneUnderstanding.Scene.FromFragments(SceneFragments);
+            }
 
+            if(scene == null)
+            {
+                Debug.LogWarning("SceneUnderstandingManager.SaveObjsToDiskAsync: Scene is null");
+                return;
+            }
+
+            foreach (SceneUnderstanding.SceneObjectKind soKind in sceneObjectKinds)
+            {
+                List<SceneUnderstanding.SceneObject> allObjectsOfAKind = new List<SceneObject>();
+                foreach(SceneUnderstanding.SceneObject sceneObject in scene.SceneObjects)
+                {
+                    if(sceneObject.Kind == soKind)
+                    {
+                        allObjectsOfAKind.Add(sceneObject);
+                    }
+                }
+
+                string fileName = string.Format("SU_{0}_{1}-{2}-{3}_{4}-{5}-{6}.obj",
+                                            soKind.ToString(), year, month, day, hour, min, sec);
+
+                if(allObjectsOfAKind.Count > 0)
+                {
                     tasks.Add(SaveAllSceneObjectsOfAKindAsOneObj(allObjectsOfAKind, GetColor(soKind), fileName));
                 }
             }
-
+            await Task.WhenAll(tasks);
         }
 
         private async Task SaveAllSceneObjectsOfAKindAsOneObj(List<SceneUnderstanding.SceneObject> sceneObjects, Color? color, string fileName)
