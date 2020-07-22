@@ -57,7 +57,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         public void Show()
         {
             visuals.SetActive(true);
-            visuals.transform.position = Camera.main.transform.position + (Camera.main.transform.forward * 0.5f);
+            visuals.transform.position = Camera.main.transform.position + (Camera.main.transform.forward * 0.75f);
 
             //Visuals foward vector is reversed, do a look from Camera to visuals to fix it.
             visuals.transform.rotation = Quaternion.LookRotation(visuals.transform.position - Camera.main.transform.position);

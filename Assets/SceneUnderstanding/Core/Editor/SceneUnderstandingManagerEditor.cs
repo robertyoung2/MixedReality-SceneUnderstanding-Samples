@@ -130,7 +130,7 @@
             //Data Loader Params
             if(SUManager.RunOnDevice)
             {
-                GUILayout.Label("Data Loader Parameters", EditorStyles.boldLabel);
+                GUILayout.Label("On Device Request Settings", EditorStyles.boldLabel);
                 GUIContent BoundingSphereRadiousInMetersContent = new GUIContent("Bounding Sphere Radious In Meters", "Radius of the sphere around the camera, which is used to query the environment.");
                 serializedBoudingSphereRadiousInMeters.floatValue = EditorGUILayout.Slider(BoundingSphereRadiousInMetersContent, serializedBoudingSphereRadiousInMeters.floatValue, 5.0f, 100.0f);
 
@@ -147,6 +147,7 @@
             //Render Mode
             EditorGUILayout.PropertyField(serializedRenderMode);
             EditorGUILayout.PropertyField(serializedRenderQuality);
+            EditorGUILayout.PropertyField(serializedRequestInferredRegions);
             GUILayout.Space(4.0f);
 
             //Colors
@@ -174,11 +175,7 @@
             EditorGUILayout.PropertyField(serializedRenderBackgroundObjects);
             EditorGUILayout.PropertyField(serializedRenderUnknownObjects);
             EditorGUILayout.PropertyField(serializedRenderWorldMesh);
-            EditorGUILayout.PropertyField(serializedRequestInferredRegions);
-            if(SUManager.RequestInferredRegions)
-            {
-                EditorGUILayout.PropertyField(serializedRenderCompletelyInferredSceneObjects);
-            }
+            EditorGUILayout.PropertyField(serializedRenderCompletelyInferredSceneObjects);
             GUILayout.Space(4.0f);
 
             //Ghost Mode

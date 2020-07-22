@@ -57,7 +57,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Tooltip("GameObject that will be the parent of all Scene Understanding related game objects. If field is left empty an empty gameobject named 'Root' will be created.")]
         public GameObject SceneRoot = null;
 
-        [Header("Data Loader Parameters")]
+        [Header("On Device Request Settings")]
         [Tooltip("Radius of the sphere around the camera, which is used to query the environment.")]
         [Range(5f, 100f)]
         public float BoundingSphereRadiusInMeters = 10.0f;
@@ -67,11 +67,13 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Range(1f, 60f)]
         public float AutoRefreshIntervalInSeconds = 10.0f;
 
-        [Header("Render Mode")]
+        [Header("Request Settings")]
         [Tooltip("Type of visualization to use for scene objects.")]
         public RenderMode SceneObjectRenderMode = RenderMode.Mesh;
         [Tooltip("Level Of Detail for the scene objects.")]
         public SceneUnderstanding.SceneMeshLevelOfDetail RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Medium;
+        [Tooltip("When enabled, requests observed and inferred regions for scene objects. When disabled, requests only the observed regions for scene objects.")]
+        public bool RequestInferredRegions = true;
 
         [Header("Render Colors")]
         [Tooltip("Colors for the Scene Understanding Background objects")]
@@ -98,7 +100,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         public Material SceneObjectQuadMaterial = null;
         [Tooltip("Material for scene object mesh wireframes.")]
         public Material SceneObjectWireframeMaterial = null;
-        [Tooltip("Material for scene objects (invisible).")]
+        [Tooltip("Material for scene objects when in Ghost mode (invisible object with occlusion)")]
         public Material TransparentOcclussion = null;
 
         [Header("Render Filters")]
@@ -114,8 +116,6 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         public bool RenderUnknownSceneObjects = true;
         [Tooltip("Toggles the display of the world mesh.")]
         public bool RenderWorldMesh = false;
-        [Tooltip("When enabled, requests observed and inferred regions for scene objects. When disabled, requests only the observed regions for scene objects.")]
-        public bool RequestInferredRegions = true;
         [Tooltip("Toggles the display of completely inferred scene objects.")]
         public bool RenderCompletelyInferredSceneObjects = true;
 
@@ -365,10 +365,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 {
                     suScene = SceneUnderstanding.Scene.FromFragments(SceneFragments);
                 }
-                catch(Exception e)
+                catch
                 {
-                    Debug.LogWarning("Scene from PC path couldn't be loaded, verify scene fragments are not null in the inspector. Terminating with exception");
-                    Debug.LogException(e);
+                    Debug.LogWarning("Scene from PC path couldn't be loaded, verify scene fragments are not null and that they all come from the same scene");
                 }
                 
             }
@@ -404,12 +403,12 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                         }
                     }
                 }
-            }
 
-            isDisplayInProgress = false;
-            Debug.Log("SceneUnderStandingManager.DisplayData: Display Completed");
-            //Run CallBacks for Onload Finished
-            OnLoadFinished.Invoke();
+                isDisplayInProgress = false;
+                Debug.Log("SceneUnderStandingManager.DisplayData: Display Completed");
+                //Run CallBacks for Onload Finished
+                OnLoadFinished.Invoke();
+            }
         }
 
         private bool DisplaySceneObject(SceneUnderstanding.SceneObject suObj)
@@ -554,7 +553,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
                     // Generate the unity mesh for the Scene Understanding mesh.
                     Mesh unityMesh = GenerateUnityMeshFromSceneObjMeshes(new List<SceneUnderstanding.SceneMesh> {SUGeometryMesh});
-                    GameObject gameObjToReturn = new GameObject(suObj.Kind.ToString());
+                    GameObject gameObjToReturn = new GameObject(suObj.Kind.ToString() + "Mesh");
 
                     Material tempMaterial = null;
                     if(SceneObjectRenderMode == RenderMode.Mesh)
@@ -570,7 +569,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     if(AddColliders)
                     {
                         //Generate a unity mesh for physics
-                        Mesh unityColliderMesh = GenerateUnityMeshFromSceneObjMeshes(new List<SceneUnderstanding.SceneMesh> {SUGeometryMesh});
+                        Mesh unityColliderMesh = GenerateUnityMeshFromSceneObjMeshes(new List<SceneUnderstanding.SceneMesh> {SUColliderMesh});
 
                         MeshCollider col = gameObjToReturn.AddComponent<MeshCollider>();
                         col.sharedMesh = unityColliderMesh;

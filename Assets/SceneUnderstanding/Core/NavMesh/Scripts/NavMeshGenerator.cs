@@ -25,7 +25,7 @@ public class NavMeshGenerator : MonoBehaviour
 
         if(navMeshAgentInstance == null)
         {
-            navMeshAgentInstance = Instantiate<GameObject>(navMeshAgentRef, new Vector3(0.0f,-0.5f,-3.0f), Quaternion.identity);
+            navMeshAgentInstance = Instantiate<GameObject>(navMeshAgentRef, new Vector3(0.0f,-0.81f,-3.0f), Quaternion.identity);
         }
     }
 
@@ -40,7 +40,7 @@ public class NavMeshGenerator : MonoBehaviour
 
                 //Walkable = 0, Not Walkable = 1
                 nvm.overrideArea = true;
-                nvm.area = SceneObj.name == "Floor" ? 0 : 1;
+                nvm.area = SceneObj.name.Contains("Floor") || SceneObj.name.Contains("floor") ? 0 : 1;
             }
         }
     }
