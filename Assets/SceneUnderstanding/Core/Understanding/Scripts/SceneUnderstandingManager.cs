@@ -699,6 +699,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 //Store the Indices and Vertices
                 for(int i = 0; i < meshVertices.Length; i++)
                 {
+                    //Here Z is negated because Unity Uses Left handed Coordinate system and Scene Understanding uses Right Handed
                     combinedMeshVertices.Add(new Vector3(meshVertices[i].X, meshVertices[i].Y, -meshVertices[i].Z));
                 }
 
