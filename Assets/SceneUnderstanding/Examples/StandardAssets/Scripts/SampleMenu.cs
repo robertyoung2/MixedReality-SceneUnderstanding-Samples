@@ -1,5 +1,4 @@
-﻿
-namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
+﻿namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 {
     using System.Collections;
     using System.Collections.Generic;
@@ -94,7 +93,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             if (suInput.SuManager == null) { return; }
 
             // Are we running on device?
-            bool onDevice = suInput.SuManager.RunOnDevice;
+            bool onDevice = suInput.SuManager.QuerySceneFromDevice;
 
             // The location of the top of the next item
             float nextTop = 0f;

@@ -109,6 +109,10 @@
         [SerializeField]
         private SampleMenu menu;
 
+        [Tooltip("Reference to the Labeler Component for SU Scene")]
+        [SerializeField]
+        private SceneUnderstandingLabeler labeler = null;
+
         [Tooltip("Whether or not to include default commands.")]
         [SerializeField]
         private bool useDefaultCommands = true;
@@ -127,6 +131,7 @@
         [Tooltip("The list of inputs and their respective actions.")]
         [SerializeField]
         private List<InputAction> inputActions = new List<InputAction>();
+
         #endregion // Unity Inspector Fields
 
         #region Internal Methods
@@ -136,7 +141,7 @@
         private void AddDefaultCommands()
         {
             // First batch of device-only commands
-            if (suManager.RunOnDevice)
+            if (suManager.QuerySceneFromDevice)
             {
                 inputActions.Add(InputAction.Create("Update", KeyCode.None, "Displays the latest data.", () => SuManager.StartDisplay()));
 
@@ -158,31 +163,31 @@
 
             inputActions.Add(InputAction.Create("Toggle Labels", KeyCode.P, "Enable / Disable labels for scene objects", () => 
             {
-                SuManager.DisplayTextLabels = !SuManager.DisplayTextLabels;
+                labeler.DisplayTextLabels = !labeler.DisplayTextLabels;
                 SuManager.StartDisplay();
             }));
 
             inputActions.Add(InputAction.Create("Scene Objects Quad", KeyCode.Alpha2, "Quad Mode", () =>
             {
-                SuManager.SceneObjectRenderMode = RenderMode.Quad;
+                SuManager.SceneObjectRequestMode = RenderMode.Quad;
                 SuManager.StartDisplay();
             }));
 
             inputActions.Add(InputAction.Create("Scene Objects Mesh", KeyCode.Alpha3, "Mesh Mode", () =>
             {
-                SuManager.SceneObjectRenderMode = RenderMode.Mesh;
+                SuManager.SceneObjectRequestMode = RenderMode.Mesh;
                 SuManager.StartDisplay();
             }));
 
             inputActions.Add(InputAction.Create("Scene Objects Wireframe", KeyCode.Alpha4, "Wireframe Mode", () =>
             {
-                SuManager.SceneObjectRenderMode = RenderMode.Wireframe;
+                SuManager.SceneObjectRequestMode = RenderMode.Wireframe;
                 SuManager.StartDisplay();
             }));
 
             inputActions.Add(InputAction.Create("Scene Objects Mask", KeyCode.None, "Mask Mode", () =>
             {
-                SuManager.SceneObjectRenderMode = RenderMode.QuadWithMask;
+                SuManager.SceneObjectRequestMode = RenderMode.QuadWithMask;
                 SuManager.StartDisplay();
             }));
 
@@ -217,34 +222,34 @@
 
             inputActions.Add(InputAction.Create("Mesh Coarse", KeyCode.None, "Low quality mesh", () =>
             {
-                SuManager.RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Coarse;
+                SuManager.MeshQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Coarse;
             }));
 
             inputActions.Add(InputAction.Create("Mesh Medium", KeyCode.None, "Medium quality mesh", () =>
             {
-                SuManager.RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Medium;
+                SuManager.MeshQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Medium;
             }));
 
             inputActions.Add(InputAction.Create("Mesh Fine", KeyCode.None, "High quality mesh", () =>
             {
-                SuManager.RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Fine;
+                SuManager.MeshQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Fine;
             }));
 
             inputActions.Add(InputAction.Create("Mesh Unlimited", KeyCode.None, "Unlimited quality mesh", () =>
             {
-                SuManager.RenderQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Unlimited;
+                SuManager.MeshQuality = SceneUnderstanding.SceneMeshLevelOfDetail.Unlimited;
             }));
 
             inputActions.Add(InputAction.Create("Toggle MiniMap", KeyCode.M, "Show or hide the mini map", MiniMapToggle));
 
             inputActions.Add(InputAction.Create("Toggle Ghost Mode", KeyCode.O, "Enable / Disable Ghost Mode (Scene Objects will be invisible but still occlude)", () => 
             {
-                SuManager.isInGhostMode = !SuManager.isInGhostMode;
+                SuManager.IsInGhostMode = !SuManager.IsInGhostMode;
                 SuManager.StartDisplay();
             }));
 
             // Last batch of device-only commands
-            if (suManager.RunOnDevice)
+            if (suManager.QuerySceneFromDevice)
             {
                 inputActions.Add(InputAction.Create("Increase Radius", KeyCode.None, "Increase the range used to query the environment", () =>
                 {
