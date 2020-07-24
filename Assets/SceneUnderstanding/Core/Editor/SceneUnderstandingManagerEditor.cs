@@ -7,13 +7,13 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
     ///<summary>
     ///  This Script defines and implements a custom editor view for the Scene Understanding Manager
     ///  component, it utilizes the SerializedProperty type from Unity as much as possible to avoid
-    ///  issues with prefab overrides. All seriwlizedProperties in a custom editor will automatically
+    ///  issues with prefab overrides. All serialized Properties in a custom editor will automatically
     ///  override settings per scene for prefabs.
     ///</summary>
     [CustomEditor(typeof(SceneUnderstandingManager))]
     public class SceneUnderstandingManagerEditor : Editor
     {
-        //Reference to the target script
+        // Reference to the target script
         SceneUnderstandingManager SUManager;
 
         // Serialized Property of every single value we want to show in the editor.
@@ -49,7 +49,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         SerializedProperty serializedOnLoadStartedCallback;
         SerializedProperty serializedOnLoadFinishedCallback;
 
-        //Const Floats for Layout dimensions
+        // Const Floats for Layout dimensions
         const float buttonWidth = 90.0f;
         const float verticalSpaceBetweenHeaders = 4.0f;
 
@@ -77,13 +77,13 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             serializedMeshQuality             = serializedObject.FindProperty("MeshQuality");
             serializedRequestInferredRegions  = serializedObject.FindProperty("RequestInferredRegions");
 
-            //Reference to all materials used.
+            // Reference to all materials used.
             serializedMeshMaterial      = serializedObject.FindProperty("SceneObjectMeshMaterial");
             serializedQuadMaterial      = serializedObject.FindProperty("SceneObjectQuadMaterial");
             serializedWireFrameMaterial = serializedObject.FindProperty("SceneObjectWireframeMaterial");
             serializedInvisibleMaterial = serializedObject.FindProperty("TransparentOcclussion");
 
-            //Reference to all toggles and filters for visualization
+            // Reference to all toggles and filters for visualization
             serializedRenderSceneObjects                   = serializedObject.FindProperty("RenderSceneObjects");
             serializedRenderPlatformsObjects               = serializedObject.FindProperty("RenderPlatformSceneObjects");
             serializedRenderBackgroundObjects              = serializedObject.FindProperty("RenderBackgroundSceneObjects");
@@ -91,7 +91,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             serializedRenderWorldMesh                      = serializedObject.FindProperty("RenderWorldMesh");
             serializedRenderCompletelyInferredSceneObjects = serializedObject.FindProperty("RenderCompletelyInferredSceneObjects");
 
-            //Reference for all colors used
+            // Reference for all colors used
             serializedRenderColorBackGrounds        = serializedObject.FindProperty("ColorForBackgroundObjects");
             serializedRenderColorWall               = serializedObject.FindProperty("ColorForWallObjects");
             serializedRenderColorFloor              = serializedObject.FindProperty("ColorForFloorObjects");
@@ -101,13 +101,13 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             serializedRenderColorCompletelyInferred = serializedObject.FindProperty("ColorForInferredObjects");
             serializedRenderColorWorld              = serializedObject.FindProperty("ColorForWorldObjects");
 
-            //Toggle for Occlusion Mode / Ghost Mode
+            // Toggle for Occlusion Mode / Ghost Mode
             serializedisInGhostMode = serializedObject.FindProperty("IsInGhostMode");
 
-            //Toggle for Colliders 
+            // Toggle for Colliders 
             serializedAddColliders = serializedObject.FindProperty("AddColliders");
 
-            //Reference for Callbacks
+            // Reference for Callbacks
             serializedOnLoadStartedCallback  = serializedObject.FindProperty("OnLoadStarted");
             serializedOnLoadFinishedCallback = serializedObject.FindProperty("OnLoadFinished");
             
@@ -115,16 +115,16 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         public override void OnInspectorGUI()
         {
-            //This function will draw the actual inspector in unity.
-            //the logic for which properties are shown and how is all here.
+            // This function will draw the actual inspector in unity.
+            // the logic for which properties are shown and how is all here.
 
-            //Update all property values, before doing any changes
+            // Update all property values, before doing any changes
             serializedObject.Update();
 
-            //Data Loader Mode (Run On device flag)
+            // Data Loader Mode (Run On device flag)
             EditorGUILayout.PropertyField(serializedQuerySceneFromDevice);
 
-            //Scene from File
+            // Scene from File
             if(!SUManager.QuerySceneFromDevice)
             {
                 GUILayout.Label("Scene Fragments: ", EditorStyles.boldLabel);
@@ -151,11 +151,11 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             }
             GUILayout.Space(verticalSpaceBetweenHeaders);
 
-            //Scene Root
+            // Scene Root
             EditorGUILayout.PropertyField(serializedRootGameObject);
             GUILayout.Space(verticalSpaceBetweenHeaders);
             
-            //On Device Request Settings
+            // On Device Request Settings
             if(SUManager.QuerySceneFromDevice)
             {
                 GUILayout.Label("On Device Request Settings", EditorStyles.boldLabel);
@@ -172,13 +172,13 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 GUILayout.Space(verticalSpaceBetweenHeaders);
             }
 
-            //Request Settings
+            // Request Settings
             EditorGUILayout.PropertyField(serializedRequestMode);
             EditorGUILayout.PropertyField(serializedMeshQuality);
             EditorGUILayout.PropertyField(serializedRequestInferredRegions);
             GUILayout.Space(verticalSpaceBetweenHeaders);
 
-            //Colors
+            // Colors
             EditorGUILayout.PropertyField(serializedRenderColorBackGrounds);
             EditorGUILayout.PropertyField(serializedRenderColorWall);
             EditorGUILayout.PropertyField(serializedRenderColorFloor);
@@ -189,14 +189,14 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             EditorGUILayout.PropertyField(serializedRenderColorWorld);
             GUILayout.Space(verticalSpaceBetweenHeaders);
 
-            //Materials
+            // Materials
             EditorGUILayout.PropertyField(serializedMeshMaterial);
             EditorGUILayout.PropertyField(serializedQuadMaterial);
             EditorGUILayout.PropertyField(serializedWireFrameMaterial);
             EditorGUILayout.PropertyField(serializedInvisibleMaterial);
             GUILayout.Space(verticalSpaceBetweenHeaders);
 
-            //Render Filters
+            // Render Filters
             EditorGUILayout.PropertyField(serializedRenderSceneObjects);
             EditorGUILayout.PropertyField(serializedRenderPlatformsObjects);
             EditorGUILayout.PropertyField(serializedRenderBackgroundObjects);
@@ -205,21 +205,21 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             EditorGUILayout.PropertyField(serializedRenderCompletelyInferredSceneObjects);
             GUILayout.Space(verticalSpaceBetweenHeaders);
 
-            //Ghost Mode
+            // Ghost Mode
             EditorGUILayout.PropertyField(serializedisInGhostMode);
             GUILayout.Space(verticalSpaceBetweenHeaders);
 
             EditorGUILayout.PropertyField(serializedAddColliders);
             GUILayout.Space(verticalSpaceBetweenHeaders);
 
-            //Callbacks
+            // Callbacks
             EditorGUILayout.PropertyField(serializedOnLoadStartedCallback);
             GUILayout.Space(verticalSpaceBetweenHeaders);
 
             EditorGUILayout.PropertyField(serializedOnLoadFinishedCallback);
             GUILayout.Space(verticalSpaceBetweenHeaders);
 
-            //On Editor only
+            // On Editor only
             if(!SUManager.QuerySceneFromDevice)
             {
                 GUILayout.Label("Actions", EditorStyles.boldLabel);
@@ -229,7 +229,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 }
             }
 
-            //Apply all Changes
+            // Apply all Changes
             serializedObject.ApplyModifiedProperties();
         }
     }

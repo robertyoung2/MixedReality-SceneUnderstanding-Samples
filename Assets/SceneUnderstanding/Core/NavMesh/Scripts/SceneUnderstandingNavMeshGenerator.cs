@@ -19,7 +19,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         // Nav Mesh Surface is a Unity Built in Type, from 
         // the unity NavMesh Assets
         public NavMeshSurface navMeshSurf;
-        public GameObject SceneRoot;
+        public GameObject sceneRoot;
         public GameObject navMeshAgentRef;
         private GameObject navMeshAgentInstance;
 
@@ -47,18 +47,18 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         void UpdateNavMeshSettingsForObjsUnderRoot ()
         {
-            //Iterate all the Scene Objects
-            foreach(Transform SceneObjContainer in SceneRoot.transform)
+            // Iterate all the Scene Objects
+            foreach(Transform sceneObjContainer in sceneRoot.transform)
             {
-                foreach(Transform SceneObj in SceneObjContainer.transform)
+                foreach(Transform sceneObj in sceneObjContainer.transform)
                 {
-                    NavMeshModifier nvm = SceneObj.gameObject.AddComponent<NavMeshModifier>();
+                    NavMeshModifier nvm = sceneObj.gameObject.AddComponent<NavMeshModifier>();
 
-                    //Walkable = 0, Not Walkable = 1
-                    //This area types are unity predefined, in the unity inspector in the navigation tab go to areas
+                    // Walkable = 0, Not Walkable = 1
+                    // This area types are unity predefined, in the unity inspector in the navigation tab go to areas
                     // to see them
                     nvm.overrideArea = true;
-                    nvm.area = SceneObj.parent.GetComponent<SceneUnderstandingProperties>().suKind == SceneUnderstanding.SceneObjectKind.Floor ? 
+                    nvm.area         = sceneObj.parent.GetComponent<SceneUnderstandingProperties>().suKind == SceneUnderstanding.SceneObjectKind.Floor ? 
                     (int) AreaType.Walkable : (int) AreaType.NotWalkable;
                 }
             }

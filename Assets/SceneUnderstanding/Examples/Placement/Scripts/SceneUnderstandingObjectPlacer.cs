@@ -19,24 +19,24 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         private GameObject objToPlace = null;
         private bool isPlacing = false;
 
-        //Container for all instantiated objects/holograms
-        private List<GameObject> HoloObjects =  new List<GameObject>();
+        // Container for all instantiated objects/holograms
+        private List<GameObject> holoObjects =  new List<GameObject>();
 
         private void StartPlacing()
         {
             objToPlace = Instantiate<GameObject>(objToPlaceRef, Vector3.zero, Quaternion.identity);
 
-            //Add object to the list
-            HoloObjects.Add(objToPlace);
+            // Add object to the list
+            holoObjects.Add(objToPlace);
 
-            //Disable collider for base object if it has any
-            Collider ParentCollider = objToPlace.GetComponent<Collider>();
-            if(ParentCollider != null)
+            // Disable collider for base object if it has any
+            Collider parentCollider = objToPlace.GetComponent<Collider>();
+            if(parentCollider != null)
             {
-                ParentCollider.enabled = false;
+                parentCollider.enabled = false;
             }
 
-            //Disable colliders for any child objects if any exists
+            // Disable colliders for any child objects if any exists
             foreach(Transform child in objToPlace.transform)
             {
                 Collider childCollider = child.GetComponent<Collider>();
@@ -50,14 +50,14 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         private void FinishPlacing()
         {
-            //Enable collider for base object if it has any
-            Collider ParentCollider = objToPlace.GetComponent<Collider>();
-            if(ParentCollider != null)
+            // Enable collider for base object if it has any
+            Collider parentCollider = objToPlace.GetComponent<Collider>();
+            if(parentCollider != null)
             {
-                ParentCollider.enabled = true;
+                parentCollider.enabled = true;
             }
 
-            //Enable colliders for any child objects if any exists
+            // Enable colliders for any child objects if any exists
             foreach(Transform child in objToPlace.transform)
             {
                 Collider childCollider = child.GetComponent<Collider>();
@@ -90,13 +90,13 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             Vector3 newObjPos = Vector3.zero;
             if(hasTarget)
             {
-                //Get a Position Slightly above of the object that the main camera is gazing at
+                // Get a Position Slightly above of the object that the main camera is gazing at
                 Vector3 selectedObjFacingTowards = -hit.transform.forward.normalized;
                 newObjPos = Vector3.Dot(Camera.main.transform.TransformDirection(Vector3.forward), selectedObjFacingTowards) < 0 ? hit.point + (selectedObjFacingTowards * 0.3f) : hit.point - (selectedObjFacingTowards * 0.3f);
             }
             else
             {
-                //If no object is being gazed at, then place the object infront of the camera.
+                // If no object is being gazed at, then place the object infront of the camera.
                 newObjPos = Camera.main.transform.position + (Camera.main.transform.forward * 2.0f);
             }
 
@@ -111,18 +111,18 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             {
                 PrimitiveType pt = i % 2 == 0 ? PrimitiveType.Cube : PrimitiveType.Sphere;
 
-                //Init
+                // Init
                 GameObject tempgbj = GameObject.CreatePrimitive(pt);
                 tempgbj.transform.localScale = new Vector3(0.2f,0.2f,0.2f);
                 tempgbj.GetComponent<MeshRenderer>().material = material;
                 tempgbj.AddComponent<Rigidbody>();
 
-                //Set Pos and add force
+                // Set Pos and add force
                 tempgbj.transform.position = Camera.main.transform.position + (Camera.main.transform.forward * 1.0f);
                 tempgbj.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward * 3.0f, ForceMode.Impulse);
 
-                //Add primitive to list
-                HoloObjects.Add(tempgbj);
+                // Add primitive to list
+                holoObjects.Add(tempgbj);
 
                 yield return new WaitForSeconds(0.1f);
             }
@@ -130,8 +130,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
         public void FreezeHolograms()
         {
-            //When the scene starts loading, freeze all holograms in place to avoid them falling on an empty scene
-            foreach(GameObject obj in HoloObjects)
+            // When the scene starts loading, freeze all holograms in place to avoid them falling on an empty scene
+            foreach(GameObject obj in holoObjects)
             {
                 Rigidbody rb = obj.GetComponent<Rigidbody>();
 
@@ -147,7 +147,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         public void UnfreezeHolograms()
         {
             //When the scene finishes loading, unfreeze all holograms
-            foreach(GameObject obj in HoloObjects)
+            foreach(GameObject obj in holoObjects)
             {
                 Rigidbody rb = obj.GetComponent<Rigidbody>();
 

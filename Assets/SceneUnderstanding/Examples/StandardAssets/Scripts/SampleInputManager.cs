@@ -150,7 +150,7 @@
                     SuManager.AutoRefresh = !SuManager.AutoRefresh;
                     if (!SuManager.AutoRefresh)
                     {
-                        SuManager.timeElapsedSinceLastAutoRefresh = SuManager.AutoRefreshIntervalInSeconds;
+                        SuManager.TimeElapsedSinceLastAutoRefresh = SuManager.AutoRefreshIntervalInSeconds;
                     }
                 }));
             }
