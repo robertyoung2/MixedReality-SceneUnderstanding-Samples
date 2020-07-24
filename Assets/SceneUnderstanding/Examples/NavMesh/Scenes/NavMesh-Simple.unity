@@ -564,7 +564,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   navMeshSurf: {fileID: 657587275}
-  sceneRoot: {fileID: 0}
+  sceneRoot: {fileID: 1442026291}
   navMeshAgentRef: {fileID: 4140733208417748800, guid: 47b46d42ee8fc2748a3cc459a9819883,
     type: 3}
 --- !u!114 &657587275

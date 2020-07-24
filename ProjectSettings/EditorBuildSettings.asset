@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/SceneUnderstanding/Examples/Home/Home-Examples.unity
+    path: Assets/SceneUnderstanding/Examples/Home/Scenes/Home-Examples.unity
     guid: e0be1d44b746e4146a17c5eba3df5f4a
   - enabled: 1
     path: Assets/SceneUnderstanding/Examples/Understanding/Scenes/Understanding-Simple.unity
