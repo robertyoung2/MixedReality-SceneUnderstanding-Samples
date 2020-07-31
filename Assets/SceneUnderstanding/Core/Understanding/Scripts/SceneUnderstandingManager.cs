@@ -13,11 +13,11 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
     //Unity
     using UnityEngine;
     using UnityEngine.Events;
-    
 
-#if WINDOWS_UWP
+
+    #if WINDOWS_UWP
     using WindowsStorage = global::Windows.Storage;
-#endif
+    #endif
 
     /// <summary>
     /// Different rendering modes available for scene objects.
@@ -81,7 +81,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         public Color ColorForFloorObjects = new Color(0.733f, 0.953f, 0.475f, 1.0f);
         [Tooltip("Colors for the Scene Understanding Ceiling objects")]
         public Color ColorForCeilingObjects = new Color(0.475f, 0.596f, 0.953f, 1.0f);
-        [Tooltip("Colors for the Scene Understanding Plataform objects")]
+        [Tooltip("Colors for the Scene Understanding Platform objects")]
         public Color ColorForPlatformsObjects = new Color(0.204f, 0.792f, 0.714f, 1.0f);
         [Tooltip("Colors for the Scene Understanding Unknown objects")]
         public Color ColorForUnknownObjects = new Color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -89,6 +89,25 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         public Color ColorForInferredObjects = new Color(0.5f, 0.5f, 0.5f, 1.0f);
         [Tooltip("Colors for the World mesh")]
         public Color ColorForWorldObjects = new Color(0.0f, 1.0f, 1.0f, 1.0f);
+
+        [Header("Layers")]
+        [Tooltip("Layer for Scene Understanding Background objects")]
+        public int LayerForBackgroundObjects;
+        [Tooltip("Layer for the Scene Understanding Wall objects")]
+        public int LayerForWallObjects;
+        [Tooltip("Layer for the Scene Understanding Floor objects")]
+        public int LayerForFloorObjects;
+        [Tooltip("Layer for the Scene Understanding Ceiling objects")]
+        public int LayerForCeilingObjects;
+        [Tooltip("Layer for the Scene Understanding Platform objects")]
+        public int LayerForPlatformsObjects;
+        [Tooltip("Layer for the Scene Understanding Unknown objects")]
+        public int LayerForUnknownObjects;
+        [Tooltip("Layer for the Scene Understanding Inferred objects")]
+        public int LayerForInferredObjects;
+        [Tooltip("Layer for the World mesh")]
+        public int LayerForWorldObjects;
+
 
         [Header("Materials")]
         [Tooltip("Material for scene object meshes.")]
@@ -131,6 +150,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         #endregion
 
         #region Private Variables
+        private Dictionary<SceneObjectKind, Dictionary<RenderMode, Material>> materialCache;
 
         private readonly float MinBoundingSphereRadiusInMeters = 5f;
         private readonly float MaxBoundingSphereRadiusInMeters = 100f;
@@ -245,7 +265,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     sceneBytes = new byte [sceneLength];
 
                     Array.Copy(LatestSUSceneData, sceneBytes, sceneLength);
-                    
+
                     // Deserialize the scene into a Scene Fragment
                     fragmentToReturn = SceneFragment.Deserialize(sceneBytes);
                 }
@@ -308,7 +328,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
                 // Ensure that the bounding radius is within the min/max range.
                 boundingSphereRadiusInMeters = Mathf.Clamp(boundingSphereRadiusInMeters, MinBoundingSphereRadiusInMeters, MaxBoundingSphereRadiusInMeters);
-                
+
                 // Make sure the scene query has completed swap with latestSUSceneData under lock to ensure the application is always pointing to a valid scene.
                 SceneBuffer serializedScene = SceneUnderstanding.SceneObserver.ComputeSerializedAsync(querySettings, boundingSphereRadiusInMeters).GetAwaiter().GetResult();
                 lock(SUDataLock)
@@ -374,7 +394,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 SceneFragment sceneFragment = GetLatestSceneSerialization();
                 SceneFragment [] sceneFragmentsArray = new SceneFragment[1] {sceneFragment};
                 suScene = SceneUnderstanding.Scene.FromFragments(sceneFragmentsArray);
-                
+
                 // Get Latest Scene GUID
                 Guid latestGuidSnapShot = GetLatestSUSceneId();
                 LastDisplayedSceneGuid = latestGuidSnapShot;
@@ -393,7 +413,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                         sceneFragments[index++] = frag;
                     }
                 }
-                
+
                 try
                 {
                     suScene = SceneUnderstanding.Scene.FromFragments(sceneFragments);
@@ -402,7 +422,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 {
                     Debug.LogWarning("Scene from PC path couldn't be loaded, verify scene fragments are not null and that they all come from the same scene");
                 }
-                
+
             }
 
             if(suScene != null)
@@ -561,14 +581,25 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             // The World Mesh Object is different from the rest of the Scene Understanding Objects
             // in the Sense that its unity representation is not affected by the filters or Request Modes
             // in this component, the World Mesh Renders even of the Scene Objects are disabled and
-            // the World Mesh is always represented with a WireFrame Material, different to the Scene 
+            // the World Mesh is always represented with a WireFrame Material, different to the Scene
             // Understanding Objects whose materials vary depending on the Settings in the component
 
             IEnumerable<SceneUnderstanding.SceneMesh> suMeshes = suObject.Meshes;
             Mesh unityMesh = GenerateUnityMeshFromSceneObjectMeshes(suMeshes);
 
             GameObject gameObjToReturn = new GameObject(suObject.Kind.ToString());
-            AddMeshToUnityObject(gameObjToReturn, unityMesh, ColorForWorldObjects, SceneObjectWireframeMaterial);
+            gameObjToReturn.layer = LayerForWorldObjects;
+            Material tempMaterial = GetMaterial(SceneObjectKind.World, RenderMode.Wireframe);
+            AddMeshToUnityObject(gameObjToReturn, unityMesh, ColorForWorldObjects, tempMaterial);
+
+            if (AddColliders)
+            {
+                // Generate a unity mesh for physics
+                Mesh unityColliderMesh = GenerateUnityMeshFromSceneObjectMeshes(suObject.ColliderMeshes);
+
+                MeshCollider col = gameObjToReturn.AddComponent<MeshCollider>();
+                col.sharedMesh = unityColliderMesh;
+            }
 
             // Also the World Mesh is represented as one big Mesh in Unity, different to the rest of SceneObjects
             // Where their multiple meshes are represented in separate game objects
@@ -585,6 +616,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             // Each SU object has a specific type, query for its correspoding color
             // according to its type
             Color? color = GetColor(suObject.Kind);
+            int layer = GetLayer(suObject.Kind);
 
             List<GameObject> listOfGeometryGameObjToReturn = new List<GameObject>();
             if(SceneObjectRequestMode == RenderMode.Quad || SceneObjectRequestMode == RenderMode.QuadWithMask)
@@ -595,17 +627,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 {
                     Mesh unityMesh = GenerateUnityMeshFromSceneObjectQuad(quad);
 
-                    Material tempMaterial = null;
-                    if(SceneObjectRequestMode == RenderMode.QuadWithMask)
-                    {
-                        tempMaterial = Instantiate(SceneObjectQuadMaterial);
-                    }
-                    else
-                    {
-                        tempMaterial = Instantiate(SceneObjectMeshMaterial);
-                    }
+                    Material tempMaterial = GetMaterial(suObject.Kind, SceneObjectRequestMode);
 
                     GameObject gameObjectToReturn = new GameObject(suObject.Kind.ToString());
+                    gameObjectToReturn.layer = layer;
                     AddMeshToUnityObject(gameObjectToReturn, unityMesh, color, tempMaterial);
 
                     if(SceneObjectRequestMode == RenderMode.QuadWithMask)
@@ -634,16 +659,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     // Generate the unity mesh for the Scene Understanding mesh.
                     Mesh unityMesh                = GenerateUnityMeshFromSceneObjectMeshes(new List<SceneUnderstanding.SceneMesh> {suGeometryMesh});
                     GameObject gameObjectToReturn = new GameObject(suObject.Kind.ToString() + "Mesh");
+                    gameObjectToReturn.layer = layer;
 
-                    Material tempMaterial = null;
-                    if(SceneObjectRequestMode == RenderMode.Mesh)
-                    {
-                        tempMaterial = Instantiate(SceneObjectMeshMaterial);
-                    }
-                    else
-                    {
-                        tempMaterial = Instantiate(SceneObjectWireframeMaterial);
-                    }
+                    Material tempMaterial = GetMaterial(suObject.Kind, SceneObjectRequestMode);
+
                     // Add the created Mesh into the Unity Object
                     AddMeshToUnityObject(gameObjectToReturn, unityMesh, color, tempMaterial);
 
@@ -748,9 +767,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             List<Vector3> vertices = new List<Vector3>()
             {
                 new Vector3(-widthInMeters / 2, -heightInMeters / 2, 0),
-                new Vector3( widthInMeters / 2, -heightInMeters / 2, 0),
-                new Vector3(-widthInMeters / 2,  heightInMeters / 2, 0),
-                new Vector3( widthInMeters / 2,  heightInMeters / 2, 0)
+                    new Vector3( widthInMeters / 2, -heightInMeters / 2, 0),
+                    new Vector3(-widthInMeters / 2,  heightInMeters / 2, 0),
+                    new Vector3( widthInMeters / 2,  heightInMeters / 2, 0)
             };
 
             List<int> triangles = new List<int>()
@@ -762,9 +781,9 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             List<Vector2> uvs = new List<Vector2>()
             {
                 new Vector2(0, 0),
-                new Vector2(1, 0),
-                new Vector2(0, 1),
-                new Vector2(1, 1)
+                    new Vector2(1, 0),
+                    new Vector2(0, 1),
+                    new Vector2(1, 1)
             };
 
             Mesh unityMesh = new Mesh();
@@ -786,23 +805,120 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 case SceneUnderstanding.SceneObjectKind.Background:
                     return ColorForBackgroundObjects;
                 case SceneUnderstanding.SceneObjectKind.Wall:
-                    return ColorForWallObjects;     
+                    return ColorForWallObjects;
                 case SceneUnderstanding.SceneObjectKind.Floor:
-                    return ColorForFloorObjects;   
+                    return ColorForFloorObjects;
                 case SceneUnderstanding.SceneObjectKind.Ceiling:
-                    return ColorForCeilingObjects; 
+                    return ColorForCeilingObjects;
                 case SceneUnderstanding.SceneObjectKind.Platform:
-                    return ColorForPlatformsObjects; 
+                    return ColorForPlatformsObjects;
                 case SceneUnderstanding.SceneObjectKind.Unknown:
-                    return ColorForUnknownObjects; 
+                    return ColorForUnknownObjects;
                 case SceneUnderstanding.SceneObjectKind.CompletelyInferred:
-                    return ColorForInferredObjects;  
+                    return ColorForInferredObjects;
                 case SceneUnderstanding.SceneObjectKind.World:
-                    return ColorForWorldObjects; 
+                    return ColorForWorldObjects;
                 default:
                     return null;
             }
         }
+
+        /// <summary>
+        /// Get the corresponding layer for each SceneObject Kind
+        /// </summary>
+        /// <param name="kind">The Scene Understanding kind from which to query the layer</param>
+        private int GetLayer(SceneObjectKind kind)
+        {
+            switch (kind)
+            {
+                case SceneUnderstanding.SceneObjectKind.Background:
+                    return LayerForBackgroundObjects;
+                case SceneUnderstanding.SceneObjectKind.Wall:
+                    return LayerForWallObjects;
+                case SceneUnderstanding.SceneObjectKind.Floor:
+                    return LayerForFloorObjects;
+                case SceneUnderstanding.SceneObjectKind.Ceiling:
+                    return LayerForCeilingObjects;
+                case SceneUnderstanding.SceneObjectKind.Platform:
+                    return LayerForPlatformsObjects;
+                case SceneUnderstanding.SceneObjectKind.Unknown:
+                    return LayerForUnknownObjects;
+                case SceneUnderstanding.SceneObjectKind.CompletelyInferred:
+                    return LayerForInferredObjects;
+                case SceneUnderstanding.SceneObjectKind.World:
+                    return LayerForWorldObjects;
+                default:
+                    return 0;
+            }
+        }
+
+        /// <summary>
+        /// Get the cached material for each SceneObject Kind
+        /// </summary>
+        /// <param name="kind">
+        /// The <see cref="SceneObjectKind"/> to obtain the material for.
+        /// </param>
+        /// <param name="mode">
+        /// The <see cref="RenderMode"/> to obtain the material for.
+        /// </param>
+        /// <remarks>
+        /// If <see cref="IsInGhostMode"/> is true, the ghost material will be returned.
+        /// </remarks>
+        private Material GetMaterial(SceneObjectKind kind, RenderMode mode)
+        {
+            // If in ghost mode, just return transparent
+            if (IsInGhostMode) { return TransparentOcclussion; }
+
+            // Make sure we have a cache
+            if (materialCache == null) { materialCache = new Dictionary<SceneObjectKind, Dictionary<RenderMode, Material>>(); }
+
+            // Find or create cache specific to this Kind
+            Dictionary<RenderMode, Material> kindModeCache;
+            if (!materialCache.TryGetValue(kind, out kindModeCache))
+            {
+                kindModeCache = new Dictionary<RenderMode, Material>();
+                materialCache[kind] = kindModeCache;
+            }
+
+            // Find or create material specific to this Mode
+            Material mat;
+            if (!kindModeCache.TryGetValue(mode, out mat))
+            {
+                // Determine the source material by kind
+                Material sourceMat;
+                switch (mode)
+                {
+                    case RenderMode.Quad:
+                    case RenderMode.QuadWithMask:
+                        sourceMat = SceneObjectQuadMaterial;
+                        break;
+                    case RenderMode.Wireframe:
+                        sourceMat = SceneObjectWireframeMaterial;
+                        break;
+                    default:
+                        sourceMat = SceneObjectMeshMaterial;
+                        break;
+                }
+
+                // Create an instance
+                mat = Instantiate(sourceMat);
+
+                // Set color to match the kind
+                Color? color = GetColor(kind);
+                if (color != null)
+                {
+                    mat.color = color.Value;
+                    mat.SetColor("_WireColor", color.Value);
+                }
+
+                // Store
+                kindModeCache[mode] = mat;
+            }
+
+            // Return the found or created material
+            return mat;
+        }
+
 
         /// <summary>
         /// Function to add a Mesh to a Unity Object
@@ -821,25 +937,8 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             MeshFilter mf = unityObject.AddComponent<MeshFilter>();
             mf.sharedMesh = mesh;
 
-            Material tempMaterial;
-            if(IsInGhostMode)
-            {
-                tempMaterial = Instantiate(TransparentOcclussion);
-            }
-            else
-            {
-                tempMaterial = Instantiate(material);
-            }
-            
-            if(color != null)
-            {
-                tempMaterial.color = color.Value;
-                tempMaterial.SetColor("_WireColor", color.Value);
-            }
-
             MeshRenderer mr = unityObject.AddComponent<MeshRenderer>();
-            mr.material = tempMaterial;
-
+            mr.sharedMaterial = material;
         }
 
         /// <summary>
@@ -1076,7 +1175,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         #endregion
 
         #region Out of PlayMode Functions
-        
+
         /// <summary>
         /// This function will generate the Unity Scene that represents the Scene
         /// Understanding Scene without needing to use the play button
@@ -1121,7 +1220,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                         }
                     }
                 }
-                
+
                 Debug.Log("[IN EDITOR] SceneUnderStandingManager.BakeScene: Display Completed");
             }
         }
@@ -1237,7 +1336,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
                 // Deserialize the scene.
                 SceneFragment[] sceneFragmentsArray = new SceneFragment[1] {sceneFragment};
-                scene = SceneUnderstanding.Scene.FromFragments(sceneFragmentsArray);  
+                scene = SceneUnderstanding.Scene.FromFragments(sceneFragmentsArray);
             }
             else
             {
@@ -1275,7 +1374,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 }
 
                 string fileName = string.Format("SU_{0}_{1}-{2}-{3}_{4}-{5}-{6}.obj",
-                                            soKind.ToString(), year, month, day, hour, min, sec);
+                                                soKind.ToString(), year, month, day, hour, min, sec);
 
                 if(allObjectsOfAKind.Count > 0)
                 {
@@ -1295,10 +1394,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             {
                 return;
             }
-            
+
             List<System.Numerics.Vector3> combinedMeshVertices = new List<System.Numerics.Vector3>();
             List<uint> combinedMeshIndices = new List<uint>();
-            
+
             // Go through each scene object, retrieve its meshes and add them to the combined lists, defined above.
             foreach (SceneUnderstanding.SceneObject so in sceneObjects)
             {
@@ -1312,7 +1411,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 {
                     continue;
                 }
-                
+
                 foreach (SceneUnderstanding.SceneMesh mesh in meshes)
                 {
                     // Get the mesh vertices.
@@ -1321,10 +1420,10 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
 
                     // Transform the vertices using the transformation matrix.
                     TransformVertices(so.GetLocationAsMatrix(), mvList);
-                    
+
                     // Store the current set of vertices in the combined list. As we add indices, we'll offset it by this value.
                     uint indexOffset = (uint)combinedMeshVertices.Count;
-                    
+
                     // Add the new set of mesh vertices to the existing set.
                     combinedMeshVertices.AddRange(mvList);
 
@@ -1390,7 +1489,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                 Debug.Log("SceneUnderstandingManager.SaveStringToDiskAsync: Scene Objects saved at " + file);
             }
         }
-        
+
         private void TransformVertices(System.Numerics.Matrix4x4 transformationMatrix, System.Numerics.Vector3[] vertices)
         {
             for (int i = 0; i < vertices.Length; ++i)
